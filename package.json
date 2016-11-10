@@ -1,0 +1,7 @@
+{
+  "name": "slux",
+  "version": "0.0.0",
+  "description": "Flux like library heavily inspired by Vuex",
+  "author": "ryym <ryym.64@gmail.com>",
+  "license": "MIT"
+}
