@@ -1,40 +1,43 @@
 import mapObject from './mapObject'
+import createActions from './createActions'
+import createMutations from './createMutations'
 
 export const STORE_CERTIFICATION = 'abcde'
 
 export default class Store {
   constructor({
-    state,
+    state = {},
     getters,
-    mutations,
-    actions,
+    mutations = createMutations({}),
+    actions = createActions({}),
     subStores = {}
   }) {
+    if (typeof getters === 'undefined') {
+      throw new Error('getters are required')
+    }
+
     this._state = state
     this.getState = this.getState.bind(this)
 
-    // Required
-    if (getters) {
-      const childGetters = mapObject(subStores, c => c._getGetters(STORE_CERTIFICATION))
-      this._getters = getters(this.getState, childGetters)
-    }
+    // Getters
+    const childGetters = mapObject(subStores, c => c._getGetters(STORE_CERTIFICATION))
+    this._getters = getters(this.getState, childGetters)
 
-    // Required
-    if (mutations) {
-      const childMutations = mapObject(subStores, c => c._getMutations(STORE_CERTIFICATION))
-      const [_mutations, subscribe] = mutations(
-        this.getState, this._getters, childMutations
-      )
-      this._mutations = _mutations
-      subscribe(s => this._state = s)
-      this._subscribe = subscribe
-    }
+    // Mutations
+    const childMutations = mapObject(subStores, c => c._getMutations(STORE_CERTIFICATION))
+    const [_mutations, subscribe] = mutations(
+      this.getState, this._getters, childMutations
+    )
+    this._mutations = _mutations
+    subscribe(s => this._state = s)
+    this._subscribe = subscribe
 
-    // Optional
-    if (actions) {
-      const childActions = mapObject(subStores, c => c._getActions(STORE_CERTIFICATION))
-      this._actions = actions(this._getters, this._mutations, childActions)
-    }
+    // Actions
+    const childActions = mapObject(subStores, c => c._getActions(STORE_CERTIFICATION))
+    this._actions = actions(this._getters, this._mutations, childActions)
+
+    // Sub stores
+    this._subStores = subStores
 
     this.installCommands()
   }
