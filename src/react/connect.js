@@ -41,7 +41,10 @@ export default function connect(
       const dispatch = store.dispatch.bind(store);
 
       // XXX
-      const mappedProps = mapStateToProps(store._getters, props);
+      const mappedProps = mapStateToProps({
+        getters: store._getters,
+        dispatch,
+      }, props);
 
       return (
         <Component
