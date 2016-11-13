@@ -25,12 +25,31 @@ export default class Store {
 
     // Mutations
     const childMutations = mapObject(subStores, c => c._getMutations(STORE_CERTIFICATION))
-    const [_mutations, subscribe] = mutations(
-      this.getState, this._getters, childMutations
+    const onCommitStart = type => {
+      this._currentCommit = { type, subCommits: [] }
+    }
+    const onCommitEnd = newState => {
+      this._state = newState
+      this._notifyStateChange(newState, this._currentCommit)
+      this._currentCommit = undefined
+    }
+    const _mutations = mutations(
+      this.getState, this._getters, childMutations, onCommitStart, onCommitEnd
     )
     this._mutations = _mutations
-    subscribe(s => this._state = s)
-    this._subscribe = subscribe
+
+    // Listen to sub store changes.
+    const onSubStoreStateChange = (_, subCommit) => {
+      if (this._currentCommit) {
+        this._currentCommit.subCommits.push(subCommit)
+      }
+      else {
+        this._notifyStateChange(this.getState(), subCommit)
+      }
+    }
+    Object.keys(subStores).forEach(name => {
+      subStores[name].subscribe(onSubStoreStateChange)
+    })
 
     // Actions
     const childActions = mapObject(subStores, c => c._getActions(STORE_CERTIFICATION))
@@ -39,7 +58,13 @@ export default class Store {
     // Sub stores
     this._subStores = subStores
 
+    this._subscribers = []
+
     this.installCommands()
+  }
+
+  _notifyStateChange(state, commit) {
+    this._subscribers.forEach(s => s(state, commit))
   }
 
   getCommands() {
@@ -75,8 +100,11 @@ export default class Store {
     return this._state
   }
 
-  subscribe(handler) {
-    return this._subscribe(handler)
+  subscribe(subscriber) {
+    this._subscribers.push(subscriber)
+    return () => {
+      // TODO: remove subscriber
+    }
   }
 
   // XXX: Must be un-enumerable
