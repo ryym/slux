@@ -2,8 +2,6 @@ import mapObject from './mapObject'
 import createActions from './createActions'
 import createMutations from './createMutations'
 
-export const STORE_CERTIFICATION = 'abcde'
-
 export default class Store {
   constructor({
     getters,
@@ -19,13 +17,14 @@ export default class Store {
     this.getState = () => _state
 
     // Getters
-    const childGetters = mapObject(subStores, c => c._getGetters(STORE_CERTIFICATION))
-    this._getters = getters(this.getState, childGetters, {
+    const childGetters = mapObject(subStores, c => c.getters)
+    this.getters = getters(this.getState, childGetters, {
       getInitialState: this.getInitialState.bind(this)
     })
+    Object.freeze(this.getters)
 
     // Mutations
-    const childMutations = mapObject(subStores, c => c._getMutations(STORE_CERTIFICATION))
+    const childMutations = mapObject(subStores, c => c.mutations)
     const onCommitStart = type => {
       this._currentCommit = { type, subCommits: [] }
     }
@@ -34,10 +33,10 @@ export default class Store {
       this._notifyStateChange(newState, this._currentCommit)
       this._currentCommit = undefined
     }
-    const _mutations = mutations(
-      this.getState, this._getters, childMutations, onCommitStart, onCommitEnd
+    this.mutations = mutations(
+      this.getState, this.getters, childMutations, onCommitStart, onCommitEnd
     )
-    this._mutations = _mutations
+    Object.freeze(this.mutations)
 
     // Listen to sub store changes.
     const onSubStoreStateChange = (_, subCommit) => {
@@ -53,11 +52,12 @@ export default class Store {
     })
 
     // Actions
-    const childActions = mapObject(subStores, c => c._getActions(STORE_CERTIFICATION))
-    this._actions = actions(this._getters, this._mutations, childActions)
+    const childActions = mapObject(subStores, c => c.actions)
+    this.actions = actions(this.getters, this.mutations, childActions)
+    Object.freeze(this.actions)
 
     // Sub stores
-    this._subStores = subStores
+    this.subStores = Object.freeze(subStores)
 
     this._subscribers = []
 
@@ -78,9 +78,7 @@ export default class Store {
 
   // XXX: 独立した関数でいい
   installCommands() {
-    // XXX: 直接渡さない方が行儀いい気もするけど、
-    // mutationもactionも`writable:false`にしちゃえば直接渡してもいいかも
-    const handlers = this.defineCommands(this._mutations, this._actions)
+    const handlers = this.defineCommands(this.mutations, this.actions)
     this._commandKeys = mapObject(handlers, (v, k) => k)
     this._commandHandlers = handlers
   }
@@ -105,29 +103,6 @@ export default class Store {
     this._subscribers.push(subscriber)
     return () => {
       // TODO: remove subscriber
-    }
-  }
-
-  // XXX: Must be un-enumerable
-
-  _getGetters(cert) {
-    this._check(cert)
-    return this._getters
-  }
-
-  _getMutations(cert) {
-    this._check(cert)
-    return this._mutations
-  }
-
-  _getActions(cert) {
-    this._check(cert)
-    return this._actions
-  }
-
-  _check(cert) {
-    if (cert !== STORE_CERTIFICATION) {
-      throw new Error('dont touch!')
     }
   }
 }

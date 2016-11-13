@@ -42,7 +42,7 @@ export default function connect(
 
       // XXX
       const mappedProps = mapStateToProps({
-        getters: store._getters,
+        getters: store.getters,
         dispatch,
       }, props);
 
