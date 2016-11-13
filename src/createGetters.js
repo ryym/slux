@@ -1,7 +1,7 @@
 import mapObject from './mapObject'
 
 export default function createGetters(getters) {
-  return (getState, childGetters = {}) => {
+  return (getState, childGetters = {}, additionalGetters) => {
 
     let _getters
 
@@ -18,7 +18,8 @@ export default function createGetters(getters) {
 
     _getters = Object.assign(
       ownGetters,
-      childGetters
+      childGetters,
+      additionalGetters
     )
 
     return _getters

@@ -6,7 +6,6 @@ export const STORE_CERTIFICATION = 'abcde'
 
 export default class Store {
   constructor({
-    state = {},
     getters,
     mutations = createMutations({}),
     actions = createActions({}),
@@ -16,12 +15,14 @@ export default class Store {
       throw new Error('getters are required')
     }
 
-    this._state = state
-    this.getState = this.getState.bind(this)
+    let _state = this.getInitialState()
+    this.getState = () => _state
 
     // Getters
     const childGetters = mapObject(subStores, c => c._getGetters(STORE_CERTIFICATION))
-    this._getters = getters(this.getState, childGetters)
+    this._getters = getters(this.getState, childGetters, {
+      getInitialState: this.getInitialState.bind(this)
+    })
 
     // Mutations
     const childMutations = mapObject(subStores, c => c._getMutations(STORE_CERTIFICATION))
@@ -29,7 +30,7 @@ export default class Store {
       this._currentCommit = { type, subCommits: [] }
     }
     const onCommitEnd = newState => {
-      this._state = newState
+      _state = newState
       this._notifyStateChange(newState, this._currentCommit)
       this._currentCommit = undefined
     }
@@ -63,6 +64,10 @@ export default class Store {
     this.installCommands()
   }
 
+  getInitialState() {
+    return {}
+  }
+
   _notifyStateChange(state, commit) {
     this._subscribers.forEach(s => s(state, commit))
   }
@@ -94,10 +99,6 @@ export default class Store {
     if (handler) {
       handler(...args)
     }
-  }
-
-  getState() {
-    return this._state
   }
 
   subscribe(subscriber) {
