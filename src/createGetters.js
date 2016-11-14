@@ -11,7 +11,6 @@ export default function createGetters(getters) {
         state: getState(),
         getters: _getters
       }, ...args)
-      // XXX: ブラウザだと(or babelを通すと)これ効かない?
       Object.defineProperty(f, 'name', { value: g.name })
       return f
     })
