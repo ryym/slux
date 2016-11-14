@@ -60,8 +60,6 @@ export default class Store {
     this.subStores = Object.freeze(subStores)
 
     this._subscribers = []
-
-    this.installCommands()
   }
 
   getInitialState() {
@@ -70,33 +68,6 @@ export default class Store {
 
   _notifyStateChange(state, commit) {
     this._subscribers.forEach(s => s(state, commit))
-  }
-
-  getCommands() {
-    return this._commandKeys
-  }
-
-  // XXX: 独立した関数でいい
-  installCommands() {
-    const handlers = this.defineCommands(this.mutations, this.actions)
-    this._commandKeys = mapObject(handlers, (v, k) => k)
-    this._commandHandlers = handlers
-  }
-
-  define() {
-    return 'Store define'
-  }
-
-  defineCommands() {
-    // サブストアは空でいい
-    return {}
-  }
-
-  dispatch(command, ...args) {
-    const handler = this._commandHandlers[command]
-    if (handler) {
-      handler(...args)
-    }
   }
 
   subscribe(subscriber) {

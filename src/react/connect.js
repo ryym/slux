@@ -1,7 +1,5 @@
 import React from 'react';
-import storePropType from './store-prop-type';
-
-// XXX: やはりmapDispatchも必要
+import sluxContextPropType from './slux-context-prop-type'
 
 // XXX: シグネチャはReduxと同じ方がいい？
 export default function connect(
@@ -12,20 +10,13 @@ export default function connect(
     displayName: `Connect(${Component.name})`,
 
     contextTypes: {
-      store: storePropType
-    },
-
-    getInitialState() {
-      return this.getStore().getState();
-    },
-
-    componentWillMount() {
-      this.store = this.getStore();
+      sluxContext: sluxContextPropType
     },
 
     componentDidMount() {
-      this.unsubscribe = this.store.subscribe((nextState) => {
-        this.setState(nextState);
+      const store = this.context.sluxContext.dispatcher.getStore()
+      this.unsubscribe = store.subscribe(() => {
+        this.forceUpdate()
       });
     },
 
@@ -34,13 +25,14 @@ export default function connect(
     },
 
     render() {
-      // const store = this.store;
       // const { children, ...restProps } = this.props;
       // XXX: これだとconnectされるコンポーネントに空の`children`が渡る
-      const { store, props } = this
-      const dispatch = store.dispatch.bind(store);
+      const { props } = this
+      const { dispatcher } = this.context.sluxContext
+      const store = dispatcher.getStore()
+      const dispatch = dispatcher.dispatch
 
-      // XXX
+      // XXX: mapDispatchToProps?
       const mappedProps = mapStateToProps({
         getters: store.getters,
         dispatch,
@@ -55,9 +47,5 @@ export default function connect(
         </Component>
       );
     },
-
-    getStore() {
-      return this.props.store || this.context.store;
-    }
   });
 }

@@ -1,7 +1,7 @@
 import createGetters from './createGetters'
 import createMutations from './createMutations'
 import createActions from './createActions'
-import defineCommands from './defineCommands'
+import createDispatcher from './createDispatcher'
 import Store from './Store'
 
 // XXX
@@ -12,8 +12,8 @@ module.exports = {
   createGetters,
   createMutations,
   createActions,
-  defineCommands,
   Store,
   connect,
-  Provider
+  Provider,
+  createDispatcher
 }

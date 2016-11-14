@@ -1,15 +1,17 @@
 import React from 'react';
-import storePropType from './store-prop-type';
+import sluxContextPropType from './slux-context-prop-type'
 
 export default class Provider extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this._store = props.store;
+    this._dispatcher = props.dispatcher
   }
 
   getChildContext() {
     return {
-      store: this._store
+      sluxContext: {
+        dispatcher: this._dispatcher
+      }
     };
   }
 
@@ -19,5 +21,5 @@ export default class Provider extends React.Component {
 }
 
 Provider.childContextTypes = {
-  store: storePropType
+  sluxContext: sluxContextPropType
 };
