@@ -9,7 +9,10 @@ export default P.shape({
   dispatcher: P.shape({
     dispatch: P.func.isRequired,
     getStore: P.func.isRequired,
-  })
+  }),
+
+  hasConnectedParent: P.bool.isRequired,
+
   // dispatcher: P.shape({
   //   dispatch: P.func.isRequired,
   //   subscribe: P.func.isRequired,

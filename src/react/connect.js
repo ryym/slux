@@ -13,15 +13,32 @@ export default function connect(
       sluxContext: sluxContextPropType
     },
 
+    childContextTypes: {
+      sluxContext: sluxContextPropType
+    },
+
+    getChildContext() {
+      return {
+        sluxContext: {
+          dispatcher: this.context.sluxContext.dispatcher,
+          hasConnectedParent: true
+        }
+      }
+    },
+
     componentDidMount() {
-      const store = this.context.sluxContext.dispatcher.getStore()
-      this.unsubscribe = store.subscribe(() => {
-        this.forceUpdate()
-      });
+      if (! this.context.sluxContext.hasConnectedParent) {
+        const store = this.context.sluxContext.dispatcher.getStore()
+        this.unsubscribe = store.subscribe((n, commit) => {
+          this.forceUpdate()
+        });
+      }
     },
 
     componentWillUnmount() {
-      this.unsubscribe();
+      if (! this.context.sluxContext.hasConnectedParent) {
+        this.unsubscribe();
+      }
     },
 
     render() {

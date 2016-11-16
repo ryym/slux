@@ -10,7 +10,8 @@ export default class Provider extends React.Component {
   getChildContext() {
     return {
       sluxContext: {
-        dispatcher: this._dispatcher
+        dispatcher: this._dispatcher,
+        hasConnectedParent: false
       }
     };
   }
