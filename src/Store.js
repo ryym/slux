@@ -15,6 +15,7 @@ export default class Store {
 
     let _state = this.getInitialState()
     this.getState = () => _state
+    this.getStateArray = () => [_state, mapObject(subStores, s => s.getStateArray())]
 
     // Getters
     const childGetters = mapObject(subStores, c => c.getters)
@@ -30,7 +31,7 @@ export default class Store {
     }
     const onCommitEnd = newState => {
       _state = newState
-      this._notifyStateChange(newState, this._currentCommit)
+      this._notifyStateChange(this.getStateArray(), this._currentCommit)
       this._currentCommit = undefined
     }
     this.mutations = mutations(
@@ -44,7 +45,7 @@ export default class Store {
         this._currentCommit.subCommits.push(subCommit)
       }
       else {
-        this._notifyStateChange(this.getState(), subCommit)
+        this._notifyStateChange(this.getStateArray(), subCommit)
       }
     }
     Object.keys(subStores).forEach(name => {
