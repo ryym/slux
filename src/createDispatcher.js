@@ -28,6 +28,9 @@ export class Dispatcher {
     if (handler) {
       handler(...args)
     }
+    else {
+      throw new Error(`The '${command}' command is not defined`)
+    }
   }
 
   getStore() {
