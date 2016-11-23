@@ -26,13 +26,21 @@ export default class Store {
 
     // Mutations
     const childMutations = mapObject(subStores, c => c.mutations)
-    const onCommitStart = type => {
-      this._currentCommit = { type, subCommits: [] }
+    const onCommitStart = (type, args) => {
+      // XXX: It is useful if we can know which store creates a commit.
+      if (! this._currentCommit) {
+        this._currentCommit = { type, args, subCommits: [] }
+      }
+      else {
+        this._currentCommit.subCommits.push({ type, args, subCommits: [] })
+      }
     }
-    const onCommitEnd = newState => {
-      _state = newState
-      this._notifyStateChange(this.getStateArray(), this._currentCommit)
-      this._currentCommit = undefined
+    const onCommitEnd = (type, newState) => {
+      if (this._currentCommit.type === type) {
+        _state = newState
+        this._notifyStateChange(this.getStateArray(), this._currentCommit)
+        this._currentCommit = undefined
+      }
     }
     this.mutations = mutations(
       this.getState, this.getters, childMutations, onCommitStart, onCommitEnd

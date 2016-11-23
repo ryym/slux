@@ -7,7 +7,7 @@ export default function createMutations(mutations) {
 
     const ownMutations = mapObject(mutations, (m) => {
       const f = (...args) => {
-        handleCommitStart(m.name)
+        handleCommitStart(m.name, args)
 
         const state = getState()
         const newState = m({
@@ -15,7 +15,7 @@ export default function createMutations(mutations) {
           mutations: _mutations
         }, ...args) || state
 
-        handleCommitEnd(newState)
+        handleCommitEnd(m.name, newState)
       }
       Object.defineProperty(f, 'name', { value: m.name })
       return f
