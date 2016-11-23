@@ -5,6 +5,7 @@ import createGetters from './createGetters'
 
 export default class BasicStore extends Store {
   constructor({
+    name,
     getters = {},
     mutations = {},
     actions = {},
@@ -12,6 +13,7 @@ export default class BasicStore extends Store {
     getInitialState,
   }) {
     super({
+      name,
       getters: createGetters(getters),
       mutations: createMutations(mutations),
       actions: createActions(actions),

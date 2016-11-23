@@ -4,6 +4,7 @@ import createMutations from './createMutations'
 
 export default class Store {
   constructor({
+    name: storeName = null,
     getters,
     mutations = createMutations({}),
     actions = createActions({}),
@@ -26,12 +27,12 @@ export default class Store {
     // Mutations
     const childMutations = mapObject(subStores, c => c.mutations)
     const onCommitStart = (type, args) => {
-      // XXX: It is useful if we can know which store creates a commit.
+      const commitData = { store: storeName, type, args, subCommits: [] }
       if (! this._currentCommit) {
-        this._currentCommit = { type, args, subCommits: [] }
+        this._currentCommit = commitData
       }
       else {
-        this._currentCommit.subCommits.push({ type, args, subCommits: [] })
+        this._currentCommit.subCommits.push(commitData)
       }
     }
     const onCommitEnd = (type, newState) => {
