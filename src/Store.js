@@ -2,9 +2,18 @@ import mapObject from './mapObject'
 import createActions from './createActions'
 import createMutations from './createMutations'
 
+function disallowGrandChildren(methods) {
+  return Object.keys(methods).reduce((ms, name) => {
+    if (typeof methods[name] === 'function') {
+      ms[name] = methods[name]
+    }
+    return ms
+  }, {})
+}
+
 export default class Store {
   constructor({
-    name: storeName = null,
+    name: storeName,
     getters,
     mutations = createMutations({}),
     actions = createActions({}),
@@ -12,6 +21,9 @@ export default class Store {
     getInitialState = () => ({}),
     takeSnapshot = () => { throw new Error(`${name}.takeSnapshot: Not implemented.`) }
   }) {
+    if (!storeName) {
+      throw new Error('Store name is not specified.')
+    }
     if (typeof getters === 'undefined') {
       throw new Error('getters are required')
     }
@@ -23,12 +35,12 @@ export default class Store {
     this.getStateArray = () => [_state, mapObject(subStores, s => s.getStateArray())]
 
     // Getters
-    const childGetters = mapObject(subStores, c => c.getters)
+    const childGetters = mapObject(subStores, c => disallowGrandChildren(c.getters))
     this.getters = getters(this.getOwnState, childGetters, { getInitialState })
     Object.freeze(this.getters)
 
     // Mutations
-    const childMutations = mapObject(subStores, c => c.mutations)
+    const childMutations = mapObject(subStores, c => disallowGrandChildren(c.mutations))
     const onCommitStart = (type, payload) => {
       const commitData = { store: storeName, type, payload, subCommits: [] }
       if (! this._currentCommit) {
@@ -64,7 +76,7 @@ export default class Store {
     })
 
     // Actions
-    const childActions = mapObject(subStores, c => c.actions)
+    const childActions = mapObject(subStores, c => disallowGrandChildren(c.actions))
     const onAction = (type, payload) => {
       this._notifyAction({ type, payload })
     }
