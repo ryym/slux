@@ -7,21 +7,20 @@ export default class Store {
     getters,
     mutations = createMutations({}),
     actions = createActions({}),
-    subStores = {}
+    subStores = {},
+    getInitialState = () => ({})
   }) {
     if (typeof getters === 'undefined') {
       throw new Error('getters are required')
     }
 
-    let _state = this.getInitialState()
+    let _state = getInitialState()
     this.getState = () => _state
     this.getStateArray = () => [_state, mapObject(subStores, s => s.getStateArray())]
 
     // Getters
     const childGetters = mapObject(subStores, c => c.getters)
-    this.getters = getters(this.getState, childGetters, {
-      getInitialState: this.getInitialState.bind(this)
-    })
+    this.getters = getters(this.getState, childGetters, { getInitialState })
     Object.freeze(this.getters)
 
     // Mutations
@@ -69,10 +68,6 @@ export default class Store {
     this.subStores = Object.freeze(subStores)
 
     this._subscribers = []
-  }
-
-  getInitialState() {
-    return {}
   }
 
   _notifyStateChange(state, commit) {

@@ -8,13 +8,15 @@ export default class BasicStore extends Store {
     getters = {},
     mutations = {},
     actions = {},
-    subStores = {}
+    subStores = {},
+    getInitialState,
   }) {
     super({
       getters: createGetters(getters),
       mutations: createMutations(mutations),
       actions: createActions(actions),
-      subStores
+      subStores,
+      getInitialState
     })
   }
 }
