@@ -11,6 +11,7 @@ export default class BasicStore extends Store {
     actions = {},
     subStores = {},
     getInitialState,
+    takeSnapshot
   }) {
     super({
       name,
@@ -18,7 +19,8 @@ export default class BasicStore extends Store {
       mutations: createMutations(mutations),
       actions: createActions(actions),
       subStores,
-      getInitialState
+      getInitialState,
+      takeSnapshot
     })
   }
 }

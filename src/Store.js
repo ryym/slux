@@ -9,19 +9,22 @@ export default class Store {
     mutations = createMutations({}),
     actions = createActions({}),
     subStores = {},
-    getInitialState = () => ({})
+    getInitialState = () => ({}),
+    takeSnapshot = () => { throw new Error(`${name}.takeSnapshot: Not implemented.`) }
   }) {
     if (typeof getters === 'undefined') {
       throw new Error('getters are required')
     }
 
+    this._takeSnapshot = takeSnapshot
+
     let _state = getInitialState()
-    this.getState = () => _state
+    this.getOwnState = () => _state
     this.getStateArray = () => [_state, mapObject(subStores, s => s.getStateArray())]
 
     // Getters
     const childGetters = mapObject(subStores, c => c.getters)
-    this.getters = getters(this.getState, childGetters, { getInitialState })
+    this.getters = getters(this.getOwnState, childGetters, { getInitialState })
     Object.freeze(this.getters)
 
     // Mutations
@@ -38,12 +41,12 @@ export default class Store {
     const onCommitEnd = (type, newState) => {
       if (this._currentCommit.type === type) {
         _state = newState
-        this._notifyStateChange(this.getStateArray(), this._currentCommit)
+        this._notifyStateChange(this, this._currentCommit)
         this._currentCommit = undefined
       }
     }
     this.mutations = mutations(
-      this.getState, this.getters, childMutations, onCommitStart, onCommitEnd
+      this.getOwnState, this.getters, childMutations, onCommitStart, onCommitEnd
     )
     Object.freeze(this.mutations)
 
@@ -53,7 +56,7 @@ export default class Store {
         this._currentCommit.subCommits.push(subCommit)
       }
       else {
-        this._notifyStateChange(this.getStateArray(), subCommit)
+        this._notifyStateChange(this, subCommit)
       }
     }
     Object.keys(subStores).forEach(name => {
@@ -71,8 +74,8 @@ export default class Store {
     this._subscribers = []
   }
 
-  _notifyStateChange(state, commit) {
-    this._subscribers.forEach(s => s(state, commit))
+  _notifyStateChange(store, commit) {
+    this._subscribers.forEach(s => s(store, commit))
   }
 
   subscribe(subscriber) {
@@ -80,6 +83,18 @@ export default class Store {
     return () => {
       // TODO: remove subscriber
     }
+  }
+
+  takeSnapshot() {
+    const ownState = this.getOwnState()
+    return this.constructSnapshot(this._takeSnapshot(ownState), this.subStores)
+  }
+
+  constructSnapshot(snapshot, subStores) {
+    Object.keys(subStores).forEach(name => {
+      snapshot[name] = subStores[name].takeSnapshot()
+    })
+    return snapshot
   }
 }
 
