@@ -5,6 +5,17 @@ export default function createGetters(getters) {
 
     let _getters
 
+    let delegations = {}
+    if (getters.$delegate) {
+      delegations = getters.$delegate(childGetters).reduce((gs, g) => {
+        if (typeof g === 'undefined') {
+          throw new Error('getter.$delegate: getter is undefined')
+        }
+        gs[g.name] = g
+        return gs
+      }, {})
+    }
+
     const ownGetters = mapObject(getters, g => {
       // 実際に外から呼べる関数
       const f = (...args) => g({
@@ -18,6 +29,7 @@ export default function createGetters(getters) {
     _getters = Object.assign(
       ownGetters,
       childGetters,
+      delegations,
       additionalGetters
     )
 
