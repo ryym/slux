@@ -1,4 +1,5 @@
 import mapObject from './mapObject'
+import EventEmitter from 'events'
 
 function createCommands(store, define) {
   const handlers = define(store.mutations, store.actions)
@@ -15,6 +16,7 @@ export class Dispatcher {
     this._commandKeys = keys
     this._commandHandlers = handlers
     this._store = store
+    this._emitter = new EventEmitter()
 
     this.dispatch = this.dispatch.bind(this)
   }
@@ -26,11 +28,20 @@ export class Dispatcher {
   dispatch(command, ...args) {
     const handler = this._commandHandlers[command]
     if (handler) {
+      this._emitter.emit('DISPATCH', command, args)
       handler(...args)
     }
     else {
       throw new Error(`The '${command}' command is not defined`)
     }
+  }
+
+  onDispatch(handler) {
+    this._emitter.on('DISPATCH', handler)
+  }
+
+  onStateChange(handler) {
+    this._store.subscribe(handler)
   }
 
   getStore() {
