@@ -9,6 +9,9 @@ import BasicStore from './BasicStore'
 import connect from './react/connect'
 import Provider from './react/Provider'
 
+// XXX
+import waitAction, { wait } from './testutils/waitAction'
+
 module.exports = {
   createGetters,
   createMutations,
@@ -17,5 +20,7 @@ module.exports = {
   BasicStore,
   connect,
   Provider,
-  createDispatcher
+  createDispatcher,
+  waitAction,
+  wait
 }
