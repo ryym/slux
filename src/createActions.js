@@ -1,15 +1,17 @@
 import mapObject from './mapObject'
 
 export default function createActions(actions) {
-  return (getters, mutations, childActions) => {
+  return (getters, mutations, childActions, handleAction) => {
     let _actions
     const handlers = []
 
-    const ownActions = mapObject(actions, (a) => {
+    const ownActions = mapObject(actions, (a, name) => {
       const f = (...args) => {
-        return a({ mutations, getters, actions: _actions }, ...args)
+        const returnValue = a({ mutations, getters, actions: _actions }, ...args)
+        handleAction(name, args)
+        return returnValue
       }
-      Object.defineProperty(f, 'name', { value: a.name })
+      Object.defineProperty(f, 'name', { value: name })
       return f
     })
 

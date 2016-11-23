@@ -29,8 +29,8 @@ export default class Store {
 
     // Mutations
     const childMutations = mapObject(subStores, c => c.mutations)
-    const onCommitStart = (type, args) => {
-      const commitData = { store: storeName, type, args, subCommits: [] }
+    const onCommitStart = (type, payload) => {
+      const commitData = { store: storeName, type, payload, subCommits: [] }
       if (! this._currentCommit) {
         this._currentCommit = commitData
       }
@@ -65,19 +65,39 @@ export default class Store {
 
     // Actions
     const childActions = mapObject(subStores, c => c.actions)
-    this.actions = actions(this.getters, this.mutations, childActions)
+    const onAction = (type, payload) => {
+      this._notifyAction({ type, payload })
+    }
+    this.actions = actions(this.getters, this.mutations, childActions, onAction)
     Object.freeze(this.actions)
+
+    Object.keys(subStores).forEach(name => {
+      subStores[name].onAction(a => this._notifyAction(a))
+    })
 
     // Sub stores
     this.subStores = Object.freeze(subStores)
 
     this._subscribers = []
+    this._actionSubscribers = []
+  }
+
+  _notifyAction(actionData) {
+    this._actionSubscribers.forEach(s => s(actionData))
   }
 
   _notifyStateChange(store, commit) {
     this._subscribers.forEach(s => s(store, commit))
   }
 
+  onAction(subscriber) {
+    this._actionSubscribers.push(subscriber)
+    return () => {
+      // TODO: remove subscriber
+    }
+  }
+
+  // XXX: onMutation
   subscribe(subscriber) {
     this._subscribers.push(subscriber)
     return () => {
