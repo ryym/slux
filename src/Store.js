@@ -1,3 +1,4 @@
+import EventEmitter from 'events'
 import mapObject from './mapObject'
 import createActions from './createActions'
 import createMutations from './createMutations'
@@ -90,30 +91,29 @@ export default class Store {
     // Sub stores
     this.subStores = Object.freeze(subStores)
 
-    this._subscribers = []
-    this._actionSubscribers = []
+    this._emitter = new EventEmitter()
   }
 
   _notifyAction(actionData) {
-    this._actionSubscribers.forEach(s => s(actionData))
+    this._emitter.emit('ACTION', actionData)
   }
 
   _notifyStateChange(store, commit) {
-    this._subscribers.forEach(s => s(store, commit))
+    this._emitter.emit('MUTATION', store, commit)
   }
 
   onAction(subscriber) {
-    this._actionSubscribers.push(subscriber)
-    return () => {
-      // TODO: remove subscriber
+    this._emitter.on('ACTION', subscriber)
+    return function unsubscribeAction() {
+      this._emitter.removeListener('ACTION', subscriber)
     }
   }
 
   // XXX: onMutation
   subscribe(subscriber) {
-    this._subscribers.push(subscriber)
-    return () => {
-      // TODO: remove subscriber
+    this._emitter.on('MUTATION', subscriber)
+    return function unsubscribeMutation() {
+      this._emitter.removeListener('MUTATION', subscriber)
     }
   }
 
