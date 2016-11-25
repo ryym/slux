@@ -1,68 +1,63 @@
-import React from 'react';
-import sluxContextPropType from './slux-context-prop-type'
+import { Component, createElement } from 'react';
+import sluxContextPropType from './utils/slux-context-prop-type'
+import shallowEqual from './utils/shallowEqual'
 
-// XXX: シグネチャはReduxと同じ方がいい？
-export default function connect(
-  Component,
-  mapStateToProps = () => {}
-) {
-  return React.createClass({
-    displayName: `Connect(${Component.name})`,
+// TODO: Optimization and configurability
 
-    contextTypes: {
-      sluxContext: sluxContextPropType
-    },
+// Update when:
+// - Connect component receives next props
+// - The store notifies a state update
 
-    childContextTypes: {
-      sluxContext: sluxContextPropType
-    },
+export default function connect(mapStateToProps, mapDispatchToProps) {
 
-    getChildContext() {
-      return {
-        sluxContext: {
-          dispatcher: this.context.sluxContext.dispatcher,
-          hasConnectedParent: true
+  return function wrapWithConnect(WrappedComponent) {
+
+    class Connect extends Component {
+      constructor(props, context) {
+        super(props, context)
+        const { sluxContext } = context
+        const dispatcher = sluxContext.dispatcher
+        this.dispatch = dispatcher.dispatch
+        this.store = dispatcher.getStore()
+        this.dispatchProps = mapDispatchToProps(this.dispatch, props)
+        this.state = {
+          mappedProps: mapStateToProps(this.store.getters, props)
+        }
+
+        this.handleStoreUpdate = this.handleStoreUpdate.bind(this)
+      }
+
+      componentDidMount() {
+        if (!this.unsubscribe) {
+          this.unsubscribe = this.store.subscribe(this.handleStoreUpdate)
         }
       }
-    },
 
-    componentDidMount() {
-      if (! this.context.sluxContext.hasConnectedParent) {
-        const store = this.context.sluxContext.dispatcher.getStore()
-        this.unsubscribe = store.subscribe((n, commit) => {
-          this.forceUpdate()
-        });
+      componentWillUnmount() {
+        if (this.unsubscribe) {
+          this.unsubscribe()
+        }
       }
-    },
 
-    componentWillUnmount() {
-      if (! this.context.sluxContext.hasConnectedParent) {
-        this.unsubscribe();
+      handleStoreUpdate(store) {
+        const nextState = mapStateToProps(store.getters, this.props)
+        if (! shallowEqual(this.state.mappedProps, nextState)) {
+          this.setState({ mappedProps: nextState })
+        }
       }
-    },
 
-    render() {
-      // const { children, ...restProps } = this.props;
-      // XXX: これだとconnectされるコンポーネントに空の`children`が渡る
-      const { props } = this
-      const { dispatcher } = this.context.sluxContext
-      const store = dispatcher.getStore()
-      const dispatch = dispatcher.dispatch
+      render() {
+        const { mappedProps } = this.state
+        const mergedProps = Object.assign({}, mappedProps, this.dispatchProps, this.props)
+        return createElement(WrappedComponent, mergedProps)
+      }
+    }
 
-      // XXX: mapDispatchToProps?
-      const mappedProps = mapStateToProps({
-        getters: store.getters,
-        dispatch,
-      }, props);
+    Connect.displayName = `Connect(${WrappedComponent.displayName || WrappedComponent.name})`
+    Connect.contextTypes = {
+      sluxContext: sluxContextPropType
+    }
 
-      return (
-        <Component
-          {...mappedProps}
-          dispatch={dispatch}
-        >
-          {props.children}
-        </Component>
-      );
-    },
-  });
+    return Connect
+  }
 }

@@ -1,17 +1,15 @@
 import React from 'react';
-import sluxContextPropType from './slux-context-prop-type'
+import sluxContextPropType from './utils/slux-context-prop-type'
 
 export default class Provider extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this._dispatcher = props.dispatcher
   }
 
   getChildContext() {
     return {
       sluxContext: {
-        dispatcher: this._dispatcher,
-        hasConnectedParent: false
+        dispatcher: this.props.dispatcher,
       }
     };
   }
