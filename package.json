@@ -9,13 +9,18 @@
     "build": "babel src --out-dir dist",
     "watch": "babel src --out-dir dist --watch",
     "lint": "eslint --fix src",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "ava": "ava --verbose",
+    "test": "yarn ava -- 'src/**/*.test.js'",
+    "test:w": "yarn test -- --watch"
   },
   "devDependencies": {
+    "ava": "^0.17.0",
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
+    "babel-register": "^6.18.0",
     "eslint": "^3.11.0",
     "eslint-config-ryym": "^1.3.1",
     "eslint-plugin-react": "^6.7.1",
@@ -25,6 +30,14 @@
   },
   "peerDependencies": {
     "react": "^15.3.2"
+  },
+  "ava": {
+    "source": [
+      "src"
+    ],
+    "require": [
+      "babel-register"
+    ]
   },
   "pre-commit": "lint-staged",
   "lint-staged": {
