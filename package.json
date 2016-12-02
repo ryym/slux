@@ -4,7 +4,7 @@
   "description": "Flux like library heavily inspired by Vuex",
   "author": "ryym <ryym.64@gmail.com>",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir dist",
     "watch": "babel src --out-dir dist --watch",
