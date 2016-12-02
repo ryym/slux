@@ -10,5 +10,9 @@ module.exports = {
 
   "plugins": [
     "react"
-  ]
+  ],
+
+  "rules": {
+    "no-empty-function": 0
+  }
 }
