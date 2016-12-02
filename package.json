@@ -5,6 +5,10 @@
   "author": "ryym <ryym.64@gmail.com>",
   "license": "MIT",
   "main": "index.js",
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "babel src --out-dir dist",
     "watch": "babel src --out-dir dist --watch",
