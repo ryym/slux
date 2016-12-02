@@ -12,7 +12,9 @@
   "scripts": {
     "build": "babel src --out-dir dist",
     "watch": "babel src --out-dir dist --watch",
-    "lint": "eslint --fix src",
+    "lint": "yarn lint:src && yarn lint:ex",
+    "lint:src": "eslint --fix src",
+    "lint:ex": "eslint --fix examples",
     "lint-staged": "lint-staged",
     "ava": "ava --verbose",
     "test": "yarn ava -- 'src/**/*.test.js'",
