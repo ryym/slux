@@ -1,5 +1,3 @@
-import Dispatcher from './Dispatcher';
+import createDispatcher from './createDispatcher';
 
-export default function createDispatcher(store, defineCommands) {
-  return new Dispatcher(store, defineCommands);
-}
+export default createDispatcher;

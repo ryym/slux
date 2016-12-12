@@ -12,13 +12,13 @@ class App extends Component {
   }
 
   handleChange(nextReddit) {
-    this.props.dispatch(commands.SELECT_REDDIT, nextReddit);
+    this.props.dispatch(commands.selectReddit(nextReddit));
   }
 
   handleRefreshClick(event) {
     event.preventDefault();
     const { dispatch, selectedReddit } = this.props;
-    dispatch(commands.INVALIDATE_REDDIT, selectedReddit);
+    dispatch(commands.invalidateReddit(selectedReddit));
   }
 
   render() {

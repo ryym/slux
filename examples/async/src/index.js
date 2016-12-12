@@ -4,7 +4,7 @@ import { render } from 'react-dom';
 import { Provider } from 'slux/react';
 import App from './components/App.connect';
 import store from './store';
-import dispatcher, { commands } from './dispatcher';
+import { dispatcher, commands } from './dispatcher';
 
 if (process.env.NODE_ENV === 'development') {
   store.onAction(actionData => {
@@ -15,10 +15,9 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
-dispatcher.dispatch(
-  commands.FETCH_POSTS,
+dispatcher.dispatch(commands.fetchPosts(
   store.getters.getSelectedReddit()
-);
+));
 
 render(
   <Provider dispatcher={dispatcher}>

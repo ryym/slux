@@ -1,11 +1,9 @@
 import { createDispatcher } from 'slux';
 import store from './store';
 
-const dispatcher = createDispatcher(store, (mutations, actions) => ({
-  SELECT_REDDIT: actions.selectReddit,
-  FETCH_POSTS: actions.fetchPosts,
-  INVALIDATE_REDDIT: actions.fetchPosts,
-}));
-
-export const commands = dispatcher.getCommands();
-export default dispatcher;
+const defineCommands = (mutations, actions, to) => ({
+  selectReddit: to(actions.selectReddit, 'SELECT_REDDIT'),
+  fetchPosts: to(actions.fetchPosts, 'FETCH_POSTS'),
+  invalidateReddit: to(actions.fetchPosts, 'INVALIDATE_POSTS'),
+});
+export const { dispatcher, commands } = createDispatcher(store, defineCommands);
