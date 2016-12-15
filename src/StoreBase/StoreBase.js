@@ -81,6 +81,7 @@ export default class Store {
     const subGetters = getSubMethods(subStores, 'getters');
     const defaultGetters = {
       getInitialState,
+      getOwnState: this.getOwnState,
       takeSnapshot: this.takeSnapshot,
     };
     const getters = createGetters({
