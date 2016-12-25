@@ -39,120 +39,126 @@ declare module "*slux" {
   type SingleCommit<S> = Commit<S, MutationContext<S>>
   type SingleDispatch<S> = Run<ActionContext<S>>
 
-  export class Store<S, GX, CX, DX, Stores> {
+  export class Store<S, GX, CX, DX, Stores, Snap> {
     query: Query<S, GX>;
     commit: Commit<S, CX>;
     run: Run<DX>;
     getState(): S;
+    takeSnapshot(): Snap;
   }
 
-  export class SingleStore<S> extends Store<
+  export class SingleStore<S, Snap> extends Store<
     S,
     GetterContext<S>,
     MutationContext<S>,
     ActionContext<S>,
-    {}
+    {},
+    Snap
   > {}
 
-  export function createStore<S>(config: {
+  export function createStore<S, Snap>(config: {
     getInitialState: () => S,
-    takeSnapshot?: () => any
-  }): SingleStore<S>
+    takeSnapshot?: () => Snap
+  }): SingleStore<S, Snap>
 
-  class SealedStore<S, G, C, D, Stores> {
-    constructor(store: Store<S, G, C, D, Stores>);
+  class SealedStore<S, G, C, D, Stores, Snap> {
+    constructor(store: Store<S, G, C, D, Stores, Snap>);
+    takeSnapshot(): Snap;
   }
 
-  export type SingleSealedStore<S> = SealedStore<
+  export type SingleSealedStore<S, Snap> = SealedStore<
     S,
     GetterContext<S>,
     MutationContext<S>,
     ActionContext<S>,
-    {}
+    {},
+    Snap
   >
 
   export interface CombinedGet {
     <S, G, R>(
-      store: SealedStore<S, G, any, any, any>,
+      store: SealedStore<S, G, any, any, any, any>,
       getter: Getter0<S, G, R>
     ): R;
     <S, G, T, R>(
-      store: SealedStore<S, G, any, any, any>,
+      store: SealedStore<S, G, any, any, any, any>,
       getter: Getter1<S, G, T, R>,
       arg: T
     ): R;
   }
   export interface CombinedCommit {
     <S, C>(
-      store: SealedStore<S, any, C, any, any>,
+      store: SealedStore<S, any, C, any, any, any>,
       mutation: Mutation0<S, C>
     ): S;
     <S, C, T>(
-      store: SealedStore<S, any, C, any, any>,
+      store: SealedStore<S, any, C, any, any, any>,
       mutation: Mutation1<S, C, T>,
       arg: T
     ): S
   }
   export interface CombinedDispatch {
     <S, D, R>(
-      store: SealedStore<any, any, any, D, any>,
+      store: SealedStore<any, any, any, D, any, any>,
       action: Action0<D, R>
     ): R;
     <S, D, T, R>(
-      store: SealedStore<any, any, any, D, any>,
+      store: SealedStore<any, any, any, D, any, any>,
       action: Action1<D, T, R>,
       arg: T
     ): R
   }
 
-  export type CombinedSealedStore<S, Stores> = SealedStore<
+  export type CombinedSealedStore<S, Stores, Snap> = SealedStore<
     S,
     CombinedGetterContext<S, Stores>,
     CombinedMutationContext<S, Stores>,
     CombinedActionContext<S, Stores>,
-    Stores
+    Stores,
+    Snap
   >
 
   export type CombinedGetterContext<S, Stores> = {
     query: CombinedGet,
-    stores: { self: CombinedSealedStore<S, Stores> } & Stores
+    stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
   export type CombinedMutationContext<S, Stores> = {
     query: CombinedGet,
     commit: CombinedCommit,
-    stores: { self: CombinedSealedStore<S, Stores> } & Stores
+    stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
   export type CombinedActionContext<S, Stores> = {
     query: CombinedGet,
     commit: CombinedCommit,
     run: CombinedDispatch,
-    stores: { self: CombinedSealedStore<S, Stores> } & Stores
+    stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
 
-  export class CombinedStore<S, Stores> extends Store<
+  export class CombinedStore<S, Stores, Snap> extends Store<
     S,
     CombinedGetterContext<S, Stores>,
     CombinedMutationContext<S, Stores>,
     CombinedActionContext<S, Stores>,
-    Stores
+    Stores,
+    Snap
   > {
     withSubs(process: (context: CombinedActionContext<S, Stores>) => void): void;
   }
 
-  export type AsSubStore = <S, G, C, D, Stores>(
-    store: Store<S, G, C, D, Stores>
-  ) => SealedStore<S, G, C, D, Stores>
+  export type AsSubStore = <S, G, C, D, Stores, Snap>(
+    store: Store<S, G, C, D, Stores, Snap>
+  ) => SealedStore<S, G, C, D, Stores, Snap>
 
   export function combineStores<S, Stores extends {
-    [key: string]: SealedStore<any, any, any, any, any>
-  }>(config: {
+    [key: string]: SealedStore<any, any, any, any, any, any>
+  }, Snap>(config: {
     getInitialState: () => S,
-    takeSnapshot?: () => any,
+    takeSnapshot?: (state: S, stores: Stores) => Snap,
     stores: (sub: AsSubStore) => Stores
-  }): CombinedStore<S, Stores>
+  }): CombinedStore<S, Stores, Snap>
 
-  export type SubStore<S> = SingleSealedStore<S>
-  export type CombinedSubStore<S, Stores> = CombinedSealedStore<S, Stores>
+  export type SubStore<S, Snap> = SingleSealedStore<S, Snap>
+  export type CombinedSubStore<S, Stores, Snap> = CombinedSealedStore<S, Stores, Snap>
 
   export function getter<S, GX, F extends Getter0<S, GX, any>>(f: F): F
   export function getter<S, GX, F extends Getter1<S, GX, any, any>>(f: F): F
@@ -189,7 +195,7 @@ declare module "*slux" {
   }
 
   export function createDispatcher<S, G, C, D, CM>(
-    store: Store<S, G, C, D, any>,
+    store: Store<S, G, C, D, any, any>,
     defineCommands: (
       commit: CommitMaker<S, C>,
       run: DispatchMaker<S, D>

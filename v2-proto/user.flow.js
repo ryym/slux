@@ -36,6 +36,10 @@ type CartState = {|
     [key: number]: number
   }
 |}
+type CartSnapshot = {
+  cart: CartState,
+  version: number
+}
 
 type CartMcx = MutationContext<CartState>
 type CartAcx = ActionContext<CartState>
@@ -46,7 +50,8 @@ const getInitialCartState = (): CartState => ({
 })
 
 export const cartStore = createStore({
-  getInitialState: getInitialCartState
+  getInitialState: getInitialCartState,
+  takeSnapshot: (state): CartSnapshot => ({ cart: state, version: 1 })
 })
 
 // Getters
@@ -93,6 +98,8 @@ export const checkCartStore = () => {
 
   state = cartStore.getState()
   console.log('initial', state)
+  var snapshot: CartSnapshot = cartStore.takeSnapshot()
+  console.log('snapshot', snapshot)
 
   state = cartStore.commit(addProduct, 1)
   console.log('add product', state)
@@ -113,6 +120,11 @@ type ProductsState = {|
     [key: number]: Product
   }
 |}
+type ProductsSnapshot = {
+  byId: {
+    [key: number]: Product
+  }
+}
 
 type ProductsGcx = GetterContext<ProductsState>
 
@@ -122,7 +134,10 @@ const getInitialProductsState = (): ProductsState => ({
 });
 
 const productsStore = createStore({
-  getInitialState: getInitialProductsState
+  getInitialState: getInitialProductsState,
+  takeSnapshot: (s): ProductsSnapshot => ({
+    byId: s.byId
+  })
 })
 
 // Getters
@@ -158,9 +173,13 @@ export const pickup = mutation(
 type RootState = {}
 
 type RootSubStores = {|
-  cart: SubStore<CartState>,
-  products: SubStore<ProductsState>
+  cart: SubStore<CartState, any>,
+  products: SubStore<ProductsState, any>
 |}
+type RootSnapshot = {
+  cart: CartSnapshot,
+  products: ProductsSnapshot
+}
 
 type RootGcx = CombinedGetterContext<RootState, RootSubStores>
 type RootMcx = CombinedMutationContext<RootState, RootSubStores>
@@ -170,6 +189,10 @@ const rootStore = combineStores({
   stores: (sub) => ({
     cart: sub(cartStore),
     products: sub(productsStore)
+  }),
+  takeSnapshot: (_, { cart, products }): RootSnapshot => ({
+    cart: cart.takeSnapshot(),
+    products: products.takeSnapshot()
   })
 })
 

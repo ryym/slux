@@ -31,108 +31,114 @@ declare module "./slux" {
   declare type SingleCommit<S> = Commit<S, MutationContext<S>>
   declare type SingleDispatch<S> = Run<ActionContext<S>>
 
-  declare class Store<S, GX, CX, DX, Stores> {
+  declare class Store<S, GX, CX, DX, Stores, Snap> {
     query: Query<S, GX>;
     commit: Commit<S, CX>;
     run: Run<DX>;
     getState(): S;
+    takeSnapshot(): Snap;
   }
 
-  declare class SingleStore<S> extends Store<
+  declare class SingleStore<S, Snap> extends Store<
     S,
     GetterContext<S>,
     MutationContext<S>,
     ActionContext<S>,
-    {}
+    {},
+    Snap
   > {}
 
-  declare function createStore<S>({
+  declare function createStore<S, Snap>({
     getInitialState: () => S,
-    takeSnapshot?: () => any
-  }): SingleStore<S>
+    takeSnapshot?: (state: S) => Snap
+  }): SingleStore<S, Snap>
 
-  declare class SealedStore<S, G, C, D, Stores> {
-    constructor(store: Store<S, G, C, D, Stores>): void;
+  declare class SealedStore<S, G, C, D, Stores, Snap> {
+    constructor(store: Store<S, G, C, D, Stores, Snap>): void;
+    takeSnapshot(): Snap;
   }
 
-  declare type SingleSealedStore<S> = SealedStore<
+  declare type SingleSealedStore<S, Snap> = SealedStore<
     S,
     GetterContext<S>,
     MutationContext<S>,
     ActionContext<S>,
-    {}
+    {},
+    Snap
   >
 
   declare interface CombinedGet {
     <S, G, T, R>(
-      store: SealedStore<S, G, any, any, any>,
+      store: SealedStore<S, G, any, any, any, any>,
       getter: Getter<S, G, T, R>,
       arg: T
     ): R
   }
   declare interface CombinedCommit {
     <S, C, T>(
-      store: SealedStore<S, any, C, any, any>,
+      store: SealedStore<S, any, C, any, any, any>,
       mutation: Mutation<S, C, T>,
       arg: T
     ): S
   }
   declare interface CombinedDispatch {
     <S, D, T, R>(
-      store: SealedStore<any, any, any, D, any>,
+      store: SealedStore<any, any, any, D, any, any>,
       action: Action<D, T, R>,
       arg: T
     ): R
   }
 
-  declare type CombinedSealedStore<S, Stores> = SealedStore<
+  declare type CombinedSealedStore<S, Stores, Snap> = SealedStore<
     S,
     CombinedGetterContext<S, Stores>,
     CombinedMutationContext<S, Stores>,
     CombinedActionContext<S, Stores>,
-    Stores
+    Stores,
+    Snap
   >
 
   declare type CombinedGetterContext<S, Stores> = {
     query: CombinedGet,
-    stores: { self: CombinedSealedStore<S, Stores> } & Stores
+    stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
   declare type CombinedMutationContext<S, Stores> = {
     query: CombinedGet,
     commit: CombinedCommit,
-    stores: { self: CombinedSealedStore<S, Stores> } & Stores
+    stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
   declare type CombinedActionContext<S, Stores> = {
     query: CombinedGet,
     commit: CombinedCommit,
     run: CombinedDispatch,
-    stores: { self: CombinedSealedStore<S, Stores> } & Stores
+    stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
 
-  declare class CombinedStore<S, Stores> extends Store<
+  declare class CombinedStore<S, Stores, Snap> extends Store<
     S,
     CombinedGetterContext<S, Stores>,
     CombinedMutationContext<S, Stores>,
     CombinedActionContext<S, Stores>,
-    Stores
+    Stores,
+    Snap
   > {
     withSubs(process: (context: CombinedActionContext<S, Stores>) => void): void;
   }
 
-  declare type AsSubStore = <S, G, C, D, Stores>(
-    store: Store<S, G, C, D, Stores>
-  ) => SealedStore<S, G, C, D, Stores>
+  declare type AsSubStore = <S, G, C, D, Stores, Snap>(
+    store: Store<S, G, C, D, Stores, Snap>
+  ) => SealedStore<S, G, C, D, Stores, Snap>
 
   declare function combineStores<S, Stores: {
-    [key: string]: SealedStore<any, any, any, any, any>
-  }>({
+    [key: string]: SealedStore<any, any, any, any, any, any>
+  }, Snap>({
     getInitialState: () => S,
-    takeSnapshot?: () => any,
-    stores: (sub: AsSubStore) => Stores
-  }): CombinedStore<S, Stores>
+    stores: (sub: AsSubStore) => Stores,
+    takeSnapshot?: (state: S, stores: Stores) => Snap,
+  }): CombinedStore<S, Stores, Snap>
 
-  declare type SubStore<S> = SingleSealedStore<S>
-  declare type CombinedSubStore<S, Stores> = CombinedSealedStore<S, Stores>
+  declare type SubStore<S, Snap> = SingleSealedStore<S, Snap>
+  declare type CombinedSubStore<S, Stores, Snap> = CombinedSealedStore<S, Stores, Snap>
 
   declare interface DefinedAction<T, R, CX, LIB> {
     (c: CX, arg: T): R;
@@ -168,7 +174,7 @@ declare module "./slux" {
   }
 
   declare function createDispatcher<S, G, C, D, CM>(
-    store: Store<S, G, C, D, any>,
+    store: Store<S, G, C, D, any, any>,
     defineCommands: (
       commit: CommitMaker<S, C>,
       run: DispatchMaker<S, D>

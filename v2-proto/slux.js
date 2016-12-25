@@ -3,7 +3,7 @@
 class Store {
   constructor(config) {
     this._state = config.getInitialState()
-    // this._takeSnapshot = config.takeSnapshot
+    this._takeSnapshot = config.takeSnapshot
     this.query = this.query.bind(this)
     this.commit = this.commit.bind(this)
     this.run = this.run.bind(this)
@@ -28,6 +28,10 @@ class Store {
 
   getState() {
     return this._state
+  }
+
+  takeSnapshot() {
+    return this._takeSnapshot(this.getState())
   }
 
   _setContexts({ getter, mutation, action }) {

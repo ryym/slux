@@ -42,7 +42,8 @@ const getInitialCartState = (): CartState => ({
 })
 
 export const cartStore = createStore({
-  getInitialState: getInitialCartState
+  getInitialState: getInitialCartState,
+  takeSnapshot: (): number => 1
 })
 
 // Getters
@@ -169,19 +170,24 @@ export const pickup = mutation(
 type RootState = {}
 
 type RootSubStores = {
-  cart: SubStore<CartState>,
-  products: SubStore<ProductsState>
+  cart: SubStore<CartState, number>,
+  products: SubStore<ProductsState, {}>
 }
 
 type RootGcx = CombinedGetterContext<RootState, RootSubStores>
 type RootMcx = CombinedMutationContext<RootState, RootSubStores>
 
+var a: {} = cartStore
+
 const rootStore = combineStores({
   getInitialState: (): RootState => ({}),
-  stores: (sub) => ({
+  stores: (sub): RootSubStores => ({
     cart: sub(cartStore),
     products: sub(productsStore)
-  })
+  }),
+  takeSnapshot: (s: RootState, stores: RootSubStores): number => {
+      return stores.cart.takeSnapshot()
+  }
 })
 
 type CartProduct = {
