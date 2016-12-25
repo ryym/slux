@@ -16,7 +16,7 @@ test('pass available getters to createGetters', t => {
   const createGetters = ({ getState, subGetters, defaultGetters }) => {
     t.deepEqual(getState(), { a: 1 });
     t.deepEqual(Object.keys(subGetters), ['foo']);
-    t.deepEqual(Object.keys(defaultGetters), ['getInitialState', 'takeSnapshot']);
+    t.deepEqual(Object.keys(defaultGetters), ['getInitialState', 'getOwnState', 'takeSnapshot']);
   };
 
   const store = new StoreBase({

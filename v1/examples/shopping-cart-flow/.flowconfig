@@ -1,0 +1,7 @@
+[libs]
+
+../../decls/
+
+[options]
+
+module.system.node.resolve_dirname=../../
