@@ -1,0 +1,2 @@
+- `tsc && node test.ts.js`
+- `node test.flow.js`
