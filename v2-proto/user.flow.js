@@ -10,7 +10,7 @@ import {
 import type {
   GetterContext, MutationContext, ActionContext,
   CombinedGetterContext, CombinedMutationContext, CombinedActionContext,
-  CombinedGet,
+  CombinedQuery,
   SingleSealedStore, CombinedSealedStore
 } from './slux'
 
@@ -281,7 +281,7 @@ const connect = createConnector(s => ({
 
 // NOTE: Flowだと、メソッドに型定義をしなくても、それが使われている場所から
 // 推論してくれるらしい。けど、やはり独立して書く時には型指定したい。
-const mapStateToProps = (query: CombinedGet, { root, cart }: AccessibleStores) => {
+const mapStateToProps = (query: CombinedQuery, { root, cart }: AccessibleStores) => {
   const products: CartProduct[] = query(root, getCartProducts)
   return {
     products,

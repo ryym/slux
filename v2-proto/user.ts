@@ -4,7 +4,7 @@ import {
   GetterContext, MutationContext, ActionContext,
   CombinedGetterContext, CombinedMutationContext, CombinedActionContext,
   SingleSealedStore, CombinedSealedStore,
-  createConnector, CombinedGet
+  createConnector, CombinedQuery
 } from '../slux' // XXX
 
 type Product = {
@@ -271,7 +271,7 @@ const connect = createConnector(s => ({
   cart: s(cartStore)
 }))
 
-const mapStateToProps = (query: CombinedGet, { root, cart }: AccessibleStores) => {
+const mapStateToProps = (query: CombinedQuery, { root, cart }: AccessibleStores) => {
   const products: CartProduct[] = query(root, getCartProducts)
   return {
     products,

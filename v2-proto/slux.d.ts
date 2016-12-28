@@ -23,19 +23,19 @@ declare module "*slux" {
   }
 
   export type GetterContext<S> = {
-    query: SingleGet<S>
+    query: SingleQuery<S>
   }
   export type MutationContext<S> = {
-    query: SingleGet<S>,
+    query: SingleQuery<S>,
     commit: SingleCommit<S>
   }
   export type ActionContext<S> = {
-    query: SingleGet<S>,
+    query: SingleQuery<S>,
     commit: SingleCommit<S>,
     run: SingleDispatch<S>
   }
 
-  type SingleGet<S> = Query<S, GetterContext<S>>
+  type SingleQuery<S> = Query<S, GetterContext<S>>
   type SingleCommit<S> = Commit<S, MutationContext<S>>
   type SingleDispatch<S> = Run<ActionContext<S>>
 
@@ -75,7 +75,7 @@ declare module "*slux" {
     Snap
   >
 
-  export interface CombinedGet {
+  export interface CombinedQuery {
     <S, G, R>(
       store: SealedStore<S, G, any, any, any, any>,
       getter: Getter0<S, G, R>
@@ -119,16 +119,16 @@ declare module "*slux" {
   >
 
   export type CombinedGetterContext<S, Stores> = {
-    query: CombinedGet,
+    query: CombinedQuery,
     stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
   export type CombinedMutationContext<S, Stores> = {
-    query: CombinedGet,
+    query: CombinedQuery,
     commit: CombinedCommit,
     stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
   export type CombinedActionContext<S, Stores> = {
-    query: CombinedGet,
+    query: CombinedQuery,
     commit: CombinedCommit,
     run: CombinedDispatch,
     stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
@@ -203,7 +203,7 @@ declare module "*slux" {
     commands: CM
   }
 
-  export type MapStateToProps<Stores> = (query: CombinedGet, stores: Stores, props: any) => {}
+  export type MapStateToProps<Stores> = (query: CombinedQuery, stores: Stores, props: any) => {}
   export type MapDispatchToProps = (dispatch: Dispatch) => {}
   export interface Connect<Stores> {
     (
