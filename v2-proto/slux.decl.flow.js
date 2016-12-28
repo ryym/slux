@@ -183,5 +183,11 @@ declare module "./slux" {
     dispatcher: Dispatcher,
     commands: CM
   }
+
+  declare type PropsMapper<Stores> = (query: CombinedGet, stores: Stores, props: any) => ?{}
+  declare interface Connect<Stores> {
+    (mapper: PropsMapper<Stores>): (component: any) => number // XXX
+  }
+  declare function createConnector<Stores>((seal: AsSubStore) => Stores): Connect<Stores>
 }
 

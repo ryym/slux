@@ -2,13 +2,16 @@
 
 import {
   createStore, combineStores, createDispatcher,
-  getter, mutation, action
+  getter, mutation, action,
+
+  createConnector
 } from './slux'
 
 import type {
   GetterContext, MutationContext, ActionContext,
   CombinedGetterContext, CombinedMutationContext, CombinedActionContext,
-  SubStore
+  CombinedGet,
+  SubStore, CombinedSubStore
 } from './slux'
 
 type Product = {|
@@ -263,3 +266,30 @@ export const checkDispatcher = () => {
   dispatcher.dispatch(commands.checkout())
   console.log('dispatch: checkout', cartStore.getState())
 }
+
+// XXX: だるい。。
+// ただ、これはSubStoresの型を定義する場合にも同じ
+// StoreごとにSealedStoreの型を定義しといて、それを使うしかない
+type AccessibleStores = {
+  root: CombinedSubStore<RootState, RootSubStores, any>,
+  cart: SubStore<CartState, any>
+}
+
+const connect = createConnector(s => ({
+  root: s(rootStore),
+  cart: s(cartStore)
+}))
+
+// NOTE: Flowだと、メソッドに型定義をしなくても、それが使われている場所から
+// 推論してくれるらしい。けど、やはり独立して書く時には型指定したい。
+const mapStateToProps = (query: CombinedGet, { root, cart }: AccessibleStores) => {
+  const products: CartProduct[] = query(root, getCartProducts)
+  return {
+    products,
+    quantity: query(cart, getQuantity, 1)
+  }
+}
+
+var a: number = connect(
+  mapStateToProps
+)("component")
