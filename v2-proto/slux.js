@@ -58,9 +58,9 @@ class SingleStore extends Store {
 class CombinedStore extends Store {
   constructor(config) {
     super(config)
-    const sub = store => new SealedStore(store)
-    const stores = Object.assign({}, config.stores(sub), {
-      self: sub(this)
+    const seal = store => new SealedStore(store)
+    const stores = Object.assign({}, config.stores(seal), {
+      self: seal(this)
     })
 
     const query = (sstore, getter, payload) => {
@@ -146,4 +146,21 @@ export function createDispatcher(store, define) {
   }
 
   return { dispatcher, commands }
+}
+
+export function createConnector(defineStores) {
+  const seal = store => new SealedStore(store)
+  const sealedStores = defineStores(seal)
+
+  return function connect(mapStateToProps /*, mapDispatchToProps */) {
+    return function wrapWithConnect(Component) {
+      class Connect { //extends Component 
+        constructor(props, context) {
+          const store = getStore(context)
+          const mappedProps = mapStateToProps(store.query, sealedStores, props)
+          // ...
+        }
+      }
+    }
+  }
 }

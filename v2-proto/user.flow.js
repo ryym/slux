@@ -2,13 +2,16 @@
 
 import {
   createStore, combineStores, createDispatcher,
-  getter, mutation, action
+  getter, mutation, action,
+
+  createConnector
 } from './slux'
 
 import type {
   GetterContext, MutationContext, ActionContext,
   CombinedGetterContext, CombinedMutationContext, CombinedActionContext,
-  SubStore
+  CombinedGet,
+  SingleSealedStore, CombinedSealedStore
 } from './slux'
 
 type Product = {|
@@ -173,8 +176,8 @@ export const pickup = mutation(
 type RootState = {}
 
 type RootSubStores = {|
-  cart: SubStore<CartState, any>,
-  products: SubStore<ProductsState, any>
+  cart: SingleSealedStore<CartState, any>,
+  products: SingleSealedStore<ProductsState, any>
 |}
 type RootSnapshot = {
   cart: CartSnapshot,
@@ -186,9 +189,9 @@ type RootMcx = CombinedMutationContext<RootState, RootSubStores>
 
 const rootStore = combineStores({
   getInitialState: (): RootState => ({}),
-  stores: (sub) => ({
-    cart: sub(cartStore),
-    products: sub(productsStore)
+  stores: (seal) => ({
+    cart: seal(cartStore),
+    products: seal(productsStore)
   }),
   takeSnapshot: (_, { cart, products }): RootSnapshot => ({
     cart: cart.takeSnapshot(),
@@ -263,3 +266,29 @@ export const checkDispatcher = () => {
   dispatcher.dispatch(commands.checkout())
   console.log('dispatch: checkout', cartStore.getState())
 }
+
+// ================= Connect =================
+
+type AccessibleStores = {
+  root: CombinedSealedStore<RootState, RootSubStores, any>,
+  cart: SingleSealedStore<CartState, any>
+}
+
+const connect = createConnector(s => ({
+  root: s(rootStore),
+  cart: s(cartStore)
+}))
+
+// NOTE: Flowだと、メソッドに型定義をしなくても、それが使われている場所から
+// 推論してくれるらしい。けど、やはり独立して書く時には型指定したい。
+const mapStateToProps = (query: CombinedGet, { root, cart }: AccessibleStores) => {
+  const products: CartProduct[] = query(root, getCartProducts)
+  return {
+    products,
+    quantity: query(cart, getQuantity, 1)
+  }
+}
+
+var a: number = connect(
+  mapStateToProps
+)("component")

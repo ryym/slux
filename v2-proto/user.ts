@@ -3,7 +3,8 @@ import {
   getter, mutation, action,
   GetterContext, MutationContext, ActionContext,
   CombinedGetterContext, CombinedMutationContext, CombinedActionContext,
-  SubStore
+  SingleSealedStore, CombinedSealedStore,
+  createConnector, CombinedGet
 } from '../slux' // XXX
 
 type Product = {
@@ -170,8 +171,8 @@ export const pickup = mutation(
 type RootState = {}
 
 type RootSubStores = {
-  cart: SubStore<CartState, number>,
-  products: SubStore<ProductsState, {}>
+  cart: SingleSealedStore<CartState, number>,
+  products: SingleSealedStore<ProductsState, {}>
 }
 
 type RootGcx = CombinedGetterContext<RootState, RootSubStores>
@@ -257,3 +258,27 @@ export const checkDispatcher = () => {
   dispatcher.dispatch(commands.checkout())
   console.log('dispatch: checkout', cartStore.getState())
 }
+
+// ================= Connect =================
+
+type AccessibleStores = {
+  root: CombinedSealedStore<RootState, RootSubStores, any>,
+  cart: SingleSealedStore<CartState, any>
+}
+
+const connect = createConnector(s => ({
+  root: s(rootStore),
+  cart: s(cartStore)
+}))
+
+const mapStateToProps = (query: CombinedGet, { root, cart }: AccessibleStores) => {
+  const products: CartProduct[] = query(root, getCartProducts)
+  return {
+    products,
+    quantity: query(cart, getQuantity, 1)
+  }
+}
+
+var connected: number = connect(
+  mapStateToProps
+)("component")

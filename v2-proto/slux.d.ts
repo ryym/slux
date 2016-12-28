@@ -145,7 +145,7 @@ declare module "*slux" {
     withSubs(process: (context: CombinedActionContext<S, Stores>) => void): void;
   }
 
-  export type AsSubStore = <S, G, C, D, Stores, Snap>(
+  export type Sealer = <S, G, C, D, Stores, Snap>(
     store: Store<S, G, C, D, Stores, Snap>
   ) => SealedStore<S, G, C, D, Stores, Snap>
 
@@ -154,11 +154,8 @@ declare module "*slux" {
   }, Snap>(config: {
     getInitialState: () => S,
     takeSnapshot?: (state: S, stores: Stores) => Snap,
-    stores: (sub: AsSubStore) => Stores
+    stores: (sub: Sealer) => Stores
   }): CombinedStore<S, Stores, Snap>
-
-  export type SubStore<S, Snap> = SingleSealedStore<S, Snap>
-  export type CombinedSubStore<S, Stores, Snap> = CombinedSealedStore<S, Stores, Snap>
 
   export function getter<S, GX, F extends Getter0<S, GX, any>>(f: F): F
   export function getter<S, GX, F extends Getter1<S, GX, any, any>>(f: F): F
@@ -190,8 +187,9 @@ declare module "*slux" {
       <T>(key: string, action: Action1<DX, T, any>): (t: T) => Command;
   }
 
+  type Dispatch = (command: Command) => void
   export class Dispatcher {
-    dispatch: (command: Command) => void;
+    dispatch: Dispatch;
   }
 
   export function createDispatcher<S, G, C, D, CM>(
@@ -204,6 +202,16 @@ declare module "*slux" {
     dispatcher: Dispatcher,
     commands: CM
   }
+
+  export type MapStateToProps<Stores> = (query: CombinedGet, stores: Stores, props: any) => {}
+  export type MapDispatchToProps = (dispatch: Dispatch) => {}
+  export interface Connect<Stores> {
+    (
+      mapStateToProps: MapStateToProps<Stores>,
+      mapDispatchToProps?: MapDispatchToProps
+    ): (component: any) => number // TODO: Return wrapper component creator
+  }
+  export function createConnector<Stores>(defineStores: (seal: Sealer) => Stores): Connect<Stores>
 
 }
 
