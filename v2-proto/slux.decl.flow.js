@@ -137,13 +137,26 @@ declare module "./slux" {
     takeSnapshot?: (state: S, stores: Stores) => Snap,
   }): CombinedStore<S, Stores, Snap>
 
-  declare interface DefinedAction<T, R, CX, LIB> {
+  declare function getter<S, GX, F: Getter<S, GX, any, any>>(f: F): F
+
+  declare interface Accessor {
+      type: string;
+      // accessorType: string;
+  }
+  declare interface DefinedMutation<S, CX, T> extends Accessor {
+    (s: S, c: CX, arg: T): S;
+  }
+  declare function mutation<S, CX, T, F: Mutation<S, CX, T>>(
+    type: string,
+    f: F
+  ): DefinedMutation<S, CX, T>
+
+  declare interface DefinedAction<T, R, CX, LIB> extends Accessor {
     (c: CX, arg: T): R;
     with(lib: LIB): (c: CX, arg: T) => R;
   }
-  declare function getter<S, GX, F: Getter<S, GX, any, any>>(f: F): F
-  declare function mutation<S, CX, F: Mutation<S, CX, any>>(f: F): F
   declare function action<T, R, DX, LIB, F: Action<DX, T, R>>(
+    type: string,
     lib: LIB => F,
     lib: LIB
   ): DefinedAction<T, R, DX, LIB>

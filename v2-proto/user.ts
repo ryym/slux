@@ -66,27 +66,31 @@ export const getAddedIds = getter(
 )
 
 // Mutations
-export const addProduct = mutation((
-  state: CartState, { query }: CartMcx, productId: number
-): CartState => {
-  const { addedIds, quantityById } = state
-  if (! query(hasProduct, productId)) {
-    addedIds.push(productId)
-  }
-  quantityById[productId] = (quantityById[productId] || 0) + 1
-  return state
-})
+export const addProduct = mutation(
+    'Add Product',
+    (state: CartState, { query }: CartMcx, productId: number): CartState => {
+      const { addedIds, quantityById } = state
+      if (! query(hasProduct, productId)) {
+        addedIds.push(productId)
+      }
+      quantityById[productId] = (quantityById[productId] || 0) + 1
+      return state
+    }
+)
 export const startCheckout = mutation(
+    'Start Checkout',
     (): CartState => {
       return getInitialCartState()
     }
 )
 export const finishCheckout = mutation(
+    'Finish Checkout',
     (s: CartState): CartState => s
 )
 
 // Actions
 export const checkout = action(
+    'Checkout and Clear Cart',
     (shop: ShopAPI) => ({ query, commit }: CartAcx): number[] => {
       const cart = query(getCurrentCart)
       const ids = query(getAddedIds)
@@ -149,6 +153,7 @@ export const hasStock = getter(
 
 // Mutations
 export const initializeProducts = mutation(
+  'Initialize Products',
   (state: ProductsState, _: ProductsMcx, products: Product[]): ProductsState => {
     state.byId = products.reduce((map: { [id: number]: Product }, product) => {
       map[product.id] = product;
@@ -160,6 +165,7 @@ export const initializeProducts = mutation(
 )
 
 export const pickup = mutation(
+  'Pickup Product',
   (state: ProductsState, _: ProductsMcx, id: number): ProductsState => {
     state.byId[id].inventory -= 1;
     return state
@@ -209,6 +215,7 @@ export const getCartProducts = getter(
 
 // Mutations
 export const addToCart = mutation(
+  'Add Product to Cart',
   (s: RootState, { query, commit, stores }: RootMcx, id: number): RootState => {
     const { cart, products } = stores
     if (!query(products, hasStock, id)) {

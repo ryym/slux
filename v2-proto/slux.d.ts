@@ -160,14 +160,33 @@ declare module "*slux" {
   export function getter<S, GX, F extends Getter0<S, GX, any>>(f: F): F
   export function getter<S, GX, F extends Getter1<S, GX, any, any>>(f: F): F
 
-  export function mutation<S, CX, F extends Mutation0<S, CX>>(f: F): F
-  export function mutation<S, CX, F extends Mutation1<S, CX, any>>(f: F): F
+  type Accessor = {
+      type: string;
+  }
 
-  type DefinedAction<LIB, F> = F & {
+  type DefinedMutation<F> = F & Accessor
+  export function mutation<S, CX, F extends Mutation0<S, CX>>(
+      type: string,
+      f: F
+  ): DefinedMutation<F>
+  export function mutation<S, CX, F extends Mutation1<S, CX, any>>(
+      type: string,
+      f: F
+  ): DefinedMutation<F>
+
+  type DefinedAction<LIB, F> = F & Accessor & {
     with(lib: LIB): F;
   }
-  export function action<LIB, F extends Action0<any, any>>(a: (lib: LIB) => F, lib?: LIB): DefinedAction<LIB, F>
-  export function action<LIB, F extends Action1<any, any, any>>(a: (lib: LIB) => F, lib?: LIB): DefinedAction<LIB, F>
+  export function action<LIB, F extends Action0<any, any>>(
+      type: string,
+      a: (lib: LIB) => F,
+      lib?: LIB
+  ): DefinedAction<LIB, F>
+  export function action<LIB, F extends Action1<any, any, any>>(
+      type: string,
+      a: (lib: LIB) => F,
+      lib?: LIB
+  ): DefinedAction<LIB, F>
 
   export type Command = {
     type: string,

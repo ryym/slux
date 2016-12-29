@@ -111,13 +111,16 @@ export function getter(func) {
   return func
 }
 
-export function mutation(func) {
-  return func
+export function mutation(type, func) {
+  const boundFunc = func.bind(null)
+  boundFunc.type = type
+  return boundFunc
 }
 
-export function action(funcWithoutDep, dep) {
+export function action(type, funcWithoutDep, dep) {
   const func = funcWithoutDep(dep)
   func.with = funcWithoutDep
+  func.type = type
   return func
 }
 
