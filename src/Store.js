@@ -1,3 +1,10 @@
+import { EventEmitter } from 'events';
+
+const events = {
+  MUTATION: 'MUTATION',
+  ACTION: 'ACTION',
+};
+
 /**
  * Store
  *   - Hold a state
@@ -22,6 +29,7 @@ export default class Store {
     this._mutationContext = mutation;
     this._actionContext = action;
 
+    this._emitter = new EventEmitter();
     this._state = getInitialState();
   }
 
@@ -32,6 +40,7 @@ export default class Store {
   commit(mutation, payload) {
     const nextState = mutation(this.getState(), this._mutationContext, payload);
     this._state = nextState;
+    this._emitter.emit(events.MUTATION);
     return nextState;
   }
 
@@ -39,8 +48,13 @@ export default class Store {
     return action(this._actionContext, payload);
   }
 
-  // TODO: implement
-  onMutation() {}
+  // TODO: Pass useful information to handlers.
+  onMutation(handler) {
+    this._emitter.on(events.MUTATION, handler);
+    return () => {
+      this._emitter.removeListener(events.MUTATION, handler);
+    };
+  }
 
   // TODO: implement
   onAction() {}
