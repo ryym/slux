@@ -1,7 +1,7 @@
-const connect = require('./dist/react/connect').default;
+const createConnector = require('./dist/react/createConnector').default;
 const Provider = require('./dist/react/Provider').default;
 
 module.exports = {
-  connect,
+  createConnector,
   Provider,
 };
