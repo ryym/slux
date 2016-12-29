@@ -276,8 +276,8 @@ export const checkRootStoreProducts = () => {
 
 const { dispatcher, commands } = createDispatcher(cartStore, (commit, run) => {
   return {
-    addProduct: commit('ADD_PRODUCT', addProduct),
-    checkout: run('CHECKOUT', checkout)
+    addProduct: commit(addProduct),
+    checkout: run(checkout)
   }
 })
 

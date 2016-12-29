@@ -97,7 +97,7 @@ declare module "*slux" {
       arg: T
     ): S
   }
-  export interface CombinedDispatch {
+  export interface CombinedRun {
     <S, D, R>(
       store: SealedStore<any, any, any, D, any, any>,
       action: Action0<D, R>
@@ -130,7 +130,7 @@ declare module "*slux" {
   export type CombinedActionContext<S, Stores> = {
     query: CombinedQuery,
     commit: CombinedCommit,
-    run: CombinedDispatch,
+    run: CombinedRun,
     stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
 
@@ -233,13 +233,13 @@ declare module "*slux" {
   }
 
   export interface CommitMaker<S, CX> {
-      (key: string, mutation: Mutation0<S, CX>): () => Command;
-      <T>(key: string, mutation: Mutation1<S, CX, T>): (t: T) => Command;
+      (mutation: Mutation0<S, CX>): () => Command;
+      <T>(mutation: Mutation1<S, CX, T>): (t: T) => Command;
   }
 
   export interface DispatchMaker<S, DX> {
-      (key: string, action: Action0<DX, any>): () => Command;
-      <T>(key: string, action: Action1<DX, T, any>): (t: T) => Command;
+      (action: Action0<DX, any>): () => Command;
+      <T>(action: Action1<DX, T, any>): (t: T) => Command;
   }
 
   type Dispatch = (command: Command) => void

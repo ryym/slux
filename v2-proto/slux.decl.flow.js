@@ -81,7 +81,7 @@ declare module "./slux" {
       arg: T
     ): S
   }
-  declare interface CombinedDispatch {
+  declare interface CombinedRun {
     <S, D, T, R>(
       store: SealedStore<any, any, any, D, any, any>,
       action: Action<D, T, R>,
@@ -110,7 +110,7 @@ declare module "./slux" {
   declare type CombinedActionContext<S, Stores> = {
     query: CombinedQuery,
     commit: CombinedCommit,
-    run: CombinedDispatch,
+    run: CombinedRun,
     stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
   }
 
@@ -197,15 +197,9 @@ declare module "./slux" {
     [key: string]: (payload: any) => Command
   }
 
-  declare type CommitMaker<S, CX> = <T>(
-    key: string,
-    mutation: Mutation<S, CX, T>
-  ) => (t: T) => Command
+  declare type CommitMaker<S, CX> = <T>(mutation: Mutation<S, CX, T>) => (t: T) => Command
 
-  declare type DispatchMaker<S, DX> = <T>(
-    key: string,
-    action: Action<DX, T, any>
-  ) => (t: T) => Command
+  declare type DispatchMaker<S, DX> = <T>(action: Action<DX, T, any>) => (t: T) => Command
 
   declare type Dispatch = (command: Command) => void
   declare class Dispatcher {

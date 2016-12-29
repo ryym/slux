@@ -143,13 +143,15 @@ export function actionWith(dep, type, funcWithoutDep) {
 export function createDispatcher(store, define) {
   const handlers = {}
 
-  const commit = (type, mutation) => {
+  const commit = (mutation) => {
+    const { type } = mutation
     handlers[type] = (payload) => {
       store.commit(mutation, payload)
     }
     return (payload) => ({ type, payload })
   }
-  const run = (type, action) => {
+  const run = (action) => {
+    const { type } = action
     handlers[type] = (payload) => {
       store.run(action, payload)
     }
