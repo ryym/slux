@@ -21,11 +21,9 @@ export const run = (sealedStore, action, payload) => {
     .run(action, payload);
 };
 
-const seal = store => new SealedStore(store);
-
-const createAccessorContexts = (sealedStores) => (store) => {
+const createAccessorContexts = (store, sealedStores) => {
   const stores = Object.assign({}, sealedStores, {
-    self: seal(store),
+    self: new SealedStore(store),
   });
   return {
     getter: { query, stores },
@@ -40,14 +38,12 @@ export default class CombinedStore extends Store {
     takeSnapshot,
     stores,
   }) {
-    const sealedStores = stores(seal);
     super({
       getInitialState,
       takeSnapshot,
-      createAccessorContexts: createAccessorContexts(sealedStores),
+      createAccessorContexts,
+      defineSubStores: stores,
     });
-
-    this._sealedStores = sealedStores;
   }
 
   withSubs(process) {

@@ -1,8 +1,7 @@
 import Store from './Store';
 
-const createAccessorContexts = (store) => {
+const createAccessorContexts = (store, stores) => {
   const { query, commit, run } = store;
-  const stores = {};
   return {
     getter: { query, stores },
     mutation: { query, commit, stores },
@@ -19,6 +18,7 @@ export default class SingleStore extends Store {
       getInitialState,
       takeSnapshot,
       createAccessorContexts,
+      defineSubStores: () => ({}),
     });
   }
 }

@@ -1,9 +1,12 @@
 import { EventEmitter } from 'events';
+import SealedStore from './SealedStore';
 
 const events = {
   MUTATION: 'MUTATION',
   ACTION: 'ACTION',
 };
+
+const seal = store => new SealedStore(store);
 
 /**
  * Store
@@ -16,6 +19,7 @@ export default class Store {
     getInitialState,
     takeSnapshot,
     createAccessorContexts,
+    defineSubStores,
   }) {
     this.query = this.query.bind(this);
     this.commit = this.commit.bind(this);
@@ -23,8 +27,9 @@ export default class Store {
 
     this.getInitialState = getInitialState;
     this._takeSnapshot = takeSnapshot;
+    this._sealedStores = defineSubStores(seal);
 
-    const { getter, mutation, action } = createAccessorContexts(this);
+    const { getter, mutation, action } = createAccessorContexts(this, this._sealedStores);
     this._getterContext = getter;
     this._mutationContext = mutation;
     this._actionContext = action;
@@ -67,6 +72,6 @@ export default class Store {
   }
 
   takeSnapshot() {
-    return this._takeSnapshot(this._state);
+    return this._takeSnapshot(this.getState());
   }
 }
