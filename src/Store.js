@@ -8,6 +8,12 @@ const events = {
 
 const seal = store => new SealedStore(store);
 
+const bindContext = (context, methods) => {
+  methods.forEach(name => {
+    context[name] = context[name].bind(context);
+  });
+};
+
 /**
  * Store
  *   - Hold a state
@@ -22,11 +28,15 @@ export default class Store {
     createAccessorContexts,
     defineSubStores,
   }) {
-    this._name = name || 'Anonymous Store';
-    this.query = this.query.bind(this);
-    this.commit = this.commit.bind(this);
-    this.run = this.run.bind(this);
+    bindContext(this, [
+      'query',
+      'commit',
+      'run',
+      '_handleSubStoreMutation',
+      '_notifyActionRun',
+    ]);
 
+    this._name = name || 'Anonymous Store';
     this.getInitialState = getInitialState;
     this._takeSnapshot = takeSnapshot;
     this._sealedStores = defineSubStores(seal);
