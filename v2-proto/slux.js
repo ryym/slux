@@ -80,7 +80,7 @@ class CombinedStore extends Store {
     })
 
     this.withSubs = (process) => {
-      process({ stores, query, commit, run })
+      process(stores, { query, commit, run })
     }
   }
 }

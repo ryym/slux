@@ -3,7 +3,6 @@
 import {
   createStore, combineStores, createDispatcher,
   getter, getterWith, mutation, mutationWith, action, actionWith,
-
   createConnector
 } from './slux'
 
@@ -255,14 +254,13 @@ export const addToCart = mutation(
 export const checkRootStoreProducts = () => {
   console.log('root: products', rootStore.query(getCartProducts))
 
-  rootStore.withSubs(({ stores, commit }) => {
+  rootStore.withSubs((stores, { commit }) => {
     const { cart, products } = stores
     const _products: Product[] = [
       { 'id': 1, 'title': 'iPad 4 Mini', 'price': 500.01, 'inventory': 2 },
       { 'id': 2, 'title': 'H&M T-Shirt White', 'price': 10.99, 'inventory': 10 },
       { 'id': 3, 'title': 'Charli XCX - Sucker CD', 'price': 19.99, 'inventory': 5 },
     ];
-
     commit(products, initializeProducts, _products)
     commit(cart, addProduct, 1)
     commit(cart, addProduct, 1)

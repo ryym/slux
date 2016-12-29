@@ -122,7 +122,14 @@ declare module "./slux" {
     Stores,
     Snap
   > {
-    withSubs(process: (context: CombinedActionContext<S, Stores>) => void): void;
+    withSubs(process: (
+      stores: Stores,
+      context: {
+        query: CombinedQuery,
+        commit: CombinedCommit,
+        run: CombinedRun,
+      }
+    ) => void): void;
   }
 
   declare type Sealer = <S, G, C, D, Stores, Snap>(

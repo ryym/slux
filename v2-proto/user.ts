@@ -242,7 +242,7 @@ export const addToCart = mutation(
 export const checkRootStoreProducts = () => {
   console.log('root: products', rootStore.query(getCartProducts))
 
-  rootStore.withSubs(({ stores, commit }) => {
+  rootStore.withSubs((stores, { commit }) => {
     const { cart, products } = stores
     const _products: Product[] = [
       { 'id': 1, 'title': 'iPad 4 Mini', 'price': 500.01, 'inventory': 2 },
