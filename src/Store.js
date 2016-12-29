@@ -16,11 +16,13 @@ const seal = store => new SealedStore(store);
  */
 export default class Store {
   constructor({
+    name,
     getInitialState,
     takeSnapshot,
     createAccessorContexts,
     defineSubStores,
   }) {
+    this._name = name || 'Anonymous Store';
     this.query = this.query.bind(this);
     this.commit = this.commit.bind(this);
     this.run = this.run.bind(this);

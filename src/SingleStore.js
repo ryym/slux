@@ -11,10 +11,12 @@ const createAccessorContexts = (store, stores) => {
 
 export default class SingleStore extends Store {
   constructor({
+    name,
     getInitialState,
     takeSnapshot,
   }) {
     super({
+      name,
       getInitialState,
       takeSnapshot,
       createAccessorContexts,

@@ -34,11 +34,13 @@ const createAccessorContexts = (store, sealedStores) => {
 
 export default class CombinedStore extends Store {
   constructor({
+    name,
     getInitialState,
     takeSnapshot,
     stores,
   }) {
     super({
+      name,
       getInitialState,
       takeSnapshot,
       createAccessorContexts,
