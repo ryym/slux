@@ -1,6 +1,6 @@
 import {
   createStore, combineStores, createDispatcher,
-  getter, mutation, action,
+  getter, getterWith, mutation, mutationWith, action, actionWith,
   GetterContext, MutationContext, ActionContext,
   CombinedGetterContext, CombinedMutationContext, CombinedActionContext,
   SingleSealedStore, CombinedSealedStore,
@@ -64,6 +64,12 @@ export const getCurrentCart = getter(
 export const getAddedIds = getter(
     (state: CartState): number[] => state.addedIds
 )
+const getQuantity2 = getterWith(
+  10,
+  (seed: number) => (s: CartState, { query }: CartGcx, productId: number): number => {
+    return query(getQuantity, productId) + seed
+  }
+)
 
 // Mutations
 export const addProduct = mutation(
@@ -87,9 +93,17 @@ export const finishCheckout = mutation(
     'Finish Checkout',
     (s: CartState): CartState => s
 )
+const someCartMutation = mutationWith(
+  "key", "Some mutation",
+  (key: string) => (state: CartState, { commit }: CartMcx): CartState => {
+    return state
+  }
+)
+cartStore.commit(someCartMutation)
 
 // Actions
-export const checkout = action(
+export const checkout = actionWith(
+    shop,
     'Checkout and Clear Cart',
     (shop: ShopAPI) => ({ query, commit }: CartAcx): number[] => {
       const cart = query(getCurrentCart)
@@ -99,8 +113,7 @@ export const checkout = action(
       shop.buyProducts(ids, () => { commit(finishCheckout) })
       return ids
       // return Promise.resolve(ids)
-    },
-    shop
+    }
 )
 
 export const checkCartStore = () => {

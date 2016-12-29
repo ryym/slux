@@ -110,14 +110,30 @@ export function combineStores(config) {
 export function getter(func) {
   return func
 }
+export function getterWith(dep, funcWithoutDep) {
+  const func = funcWithoutDep(dep)
+  func.with = funcWithoutDep
+  return func
+}
 
 export function mutation(type, func) {
   const boundFunc = func.bind(null)
   boundFunc.type = type
   return boundFunc
 }
+export function mutationWith(dep, type, funcWithoutDep) {
+  const func = funcWithoutDep(dep)
+  func.with = funcWithoutDep
+  func.type = type
+  return func
+}
 
-export function action(type, funcWithoutDep, dep) {
+export function action(type, func) {
+  const boundFunc = func.bind(null)
+  boundFunc.type = type
+  return boundFunc
+}
+export function actionWith(dep, type, funcWithoutDep) {
   const func = funcWithoutDep(dep)
   func.with = funcWithoutDep
   func.type = type

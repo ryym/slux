@@ -157,36 +157,72 @@ declare module "*slux" {
     stores: (sub: Sealer) => Stores
   }): CombinedStore<S, Stores, Snap>
 
-  export function getter<S, GX, F extends Getter0<S, GX, any>>(f: F): F
-  export function getter<S, GX, F extends Getter1<S, GX, any, any>>(f: F): F
+  type DefinedGetterWithDep<Dep, F> = F & {
+    with(dependency: Dep): F;
+  }
+
+  export function getter<F extends Getter0<any, any, any>>(f: F): F
+  export function getter<F extends Getter1<any, any, any, any>>(f: F): F
+  export function getterWith<Dep, F extends Getter0<any, any, any>>(
+      dep: Dep,
+      g: (dep: Dep) => F
+  ): DefinedGetterWithDep<Dep, F>
+  export function getterWith<Dep, F extends Getter1<any, any, any, any>>(
+      dep: Dep,
+      g: (dep: Dep) => F
+  ): DefinedGetterWithDep<Dep, F>
 
   type Accessor = {
       type: string;
   }
 
   type DefinedMutation<F> = F & Accessor
-  export function mutation<S, CX, F extends Mutation0<S, CX>>(
-      type: string,
-      f: F
-  ): DefinedMutation<F>
-  export function mutation<S, CX, F extends Mutation1<S, CX, any>>(
-      type: string,
-      f: F
-  ): DefinedMutation<F>
-
-  type DefinedAction<LIB, F> = F & Accessor & {
-    with(lib: LIB): F;
+  type DefinedMutationWithDep<F, Dep> = F & Accessor & {
+    with(dependency: Dep): F;
   }
-  export function action<LIB, F extends Action0<any, any>>(
+
+  export function mutation<F extends Mutation0<any, any>>(
       type: string,
-      a: (lib: LIB) => F,
-      lib?: LIB
-  ): DefinedAction<LIB, F>
-  export function action<LIB, F extends Action1<any, any, any>>(
+      f: F
+  ): DefinedMutation<F>
+  export function mutation<F extends Mutation1<any, any, any>>(
       type: string,
-      a: (lib: LIB) => F,
-      lib?: LIB
-  ): DefinedAction<LIB, F>
+      f: F
+  ): DefinedMutation<F>
+  export function mutationWith<Dep, F extends Mutation0<any, any>>(
+      dep: Dep,
+      type: string,
+      m: (dep: Dep) => F
+  ): DefinedMutationWithDep<F, Dep>
+  export function mutationWith<Dep, F extends Mutation1<any, any, any>>(
+      dep: Dep,
+      type: string,
+      m: (dep: Dep) => F
+  ): DefinedMutationWithDep<F, Dep>
+
+  type DefinedAction<F> = F & Accessor
+  type DefinedActionWithDep<F, Dep> = F & Accessor & {
+    with(dependency: Dep): F;
+  }
+
+  export function action<F extends Action0<any, any>>(
+      type: string,
+      a: F
+  ): DefinedAction<F>
+  export function action<F extends Action1<any, any, any>>(
+      type: string,
+      a: F
+  ): DefinedAction<F>
+  export function actionWith<Dep, F extends Action0<any, any>>(
+      dep: Dep,
+      type: string,
+      a: (dep: Dep) => F
+  ): DefinedActionWithDep<F, Dep>
+  export function actionWith<Dep, F extends Action1<any, any, any>>(
+      dep: Dep,
+      type: string,
+      a: (dep: Dep) => F
+  ): DefinedActionWithDep<F, Dep>
 
   export type Command = {
     type: string,
