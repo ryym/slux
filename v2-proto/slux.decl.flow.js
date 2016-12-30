@@ -196,19 +196,16 @@ declare module "./slux" {
     (dep: Dep) => F
   ): DefinedActionWithDep<T, R, DX, Dep>
 
-  declare type Command = {
+  declare type Command<T> = {
     type: string,
-    payload: any
-  }
-  declare type Commands = {
-    [key: string]: (payload: any) => Command
+    payload: T
   }
 
-  declare type CommitMaker<S, CX> = <T>(mutation: Mutation<S, CX, T>) => (t: T) => Command
+  declare type CommitMaker<S, CX> = <T>(mutation: Mutation<S, CX, T>) => (t: T) => Command<T>
 
-  declare type DispatchMaker<S, DX> = <T>(action: Action<DX, T, any>) => (t: T) => Command
+  declare type DispatchMaker<S, DX> = <T>(action: Action<DX, T, any>) => (t: T) => Command<T>
 
-  declare type Dispatch = (command: Command) => void
+  declare type Dispatch = <T>((t: T) => Command<T>, arg: T) => void
   declare class Dispatcher {
     dispatch: Dispatch;
   }

@@ -9,7 +9,8 @@ export default class Dispatcher {
     this.dispatch = this.dispatch.bind(this);
   }
 
-  dispatch({ type, payload }) {
+  dispatch(command, _payload) {
+    const { type, payload } = command(_payload);
     const handler = this._handlers[type];
     if (typeof handler !== 'function') {
       throw new Error(`Slux: Can not find a handler for dispatched command '${type}'`);

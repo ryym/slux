@@ -231,25 +231,28 @@ declare module "*slux" {
       a: (dep: Dep) => F
   ): DefinedActionWithDep<F, Dep>
 
-  export type Command = {
-    type: string,
-    payload: any
+  export type Command0 = {
+      type: string
   }
-  export type Commands = {
-    [key: string]: (payload: any) => Command
+  export type Command1<T> = {
+    type: string,
+    payload: T
   }
 
   export interface CommitMaker<S, CX> {
-      (mutation: Mutation0<S, CX>): () => Command;
-      <T>(mutation: Mutation1<S, CX, T>): (t: T) => Command;
+      (mutation: Mutation0<S, CX>): () => Command0;
+      <T>(mutation: Mutation1<S, CX, T>): (t: T) => Command1<T>;
   }
 
   export interface DispatchMaker<S, DX> {
-      (action: Action0<DX, any>): () => Command;
-      <T>(action: Action1<DX, T, any>): (t: T) => Command;
+      (action: Action0<DX, any>): () => Command0;
+      <T>(action: Action1<DX, T, any>): (t: T) => Command1<T>;
   }
 
-  type Dispatch = (command: Command) => void
+  interface Dispatch {
+      (c: () => Command0): void;
+      <T>(c: (t: T) => Command1<T>, arg: T): void;
+  }
   export class Dispatcher {
     dispatch: Dispatch;
   }

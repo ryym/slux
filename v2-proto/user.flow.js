@@ -283,10 +283,10 @@ export const checkDispatcher = () => {
   cartStore.run(checkout) // Clear
 
   console.log(commands)
-  dispatcher.dispatch(commands.addProduct(1))
-  dispatcher.dispatch(commands.addProduct(1))
+  dispatcher.dispatch(commands.addProduct, 1)
+  dispatcher.dispatch(commands.addProduct, 1)
   console.log('dispatch: add product', cartStore.getState())
-  dispatcher.dispatch(commands.checkout())
+  dispatcher.dispatch(commands.checkout)
   console.log('dispatch: checkout', cartStore.getState())
 }
 
