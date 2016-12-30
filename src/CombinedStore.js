@@ -46,11 +46,24 @@ export default class CombinedStore extends Store {
       createAccessorContexts,
       defineSubStores: stores,
     });
+    this._subscribeSubStoreChanges();
+  }
+
+  takeSnapshot() {
+    return this._takeSnapshot(this.getState(), this._sealedStores);
   }
 
   withSubs(process) {
     const accessors = { query, commit, run };
     process(this._sealedStores, accessors);
+  }
+
+  _subscribeSubStoreChanges() {
+    Object.keys(this._sealedStores).forEach(name => {
+      const store = this._sealedStores[name].getStore(_SEALED_STORE_ACCESS_KEY);
+      store.onMutation(this._handleSubStoreMutation);
+      store.onAction(this._notifyActionRun);
+    });
   }
 }
 

@@ -120,14 +120,6 @@ export default class Store {
     }
   }
 
-  _subscribeSubStoreChanges() {
-    Object.keys(this._sealedStores).forEach(name => {
-      const store = this._sealedStore[name];
-      store.onMutation(this._handleSubStoreMutation);
-      store.onAction(this._notifyActionRun);
-    });
-  }
-
   _notifyActionRun(actionData) {
     this._emitter.emit(events.ACTION, actionData);
   }
