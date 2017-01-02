@@ -21,6 +21,8 @@
     "test:w": "yarn test -- --watch"
   },
   "devDependencies": {
+    "@types/react": "^0.14.55",
+    "@types/react-dom": "^0.14.20",
     "ava": "^0.17.0",
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
