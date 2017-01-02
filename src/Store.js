@@ -50,6 +50,10 @@ export default class Store {
     this._state = getInitialState();
   }
 
+  getName() {
+    return this._name;
+  }
+
   query(getter, payload) {
     return getter(this.getState(), this._getterContext, payload);
   }
