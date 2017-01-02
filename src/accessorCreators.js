@@ -1,35 +1,42 @@
 export function getter(func) {
-  return func.bind(null);
+  return {
+    exec: func,
+  };
 }
 
 export function getterWith(dependency, funcWithoutDep) {
-  const func = funcWithoutDep(dependency);
-  func.with = funcWithoutDep;
-  return func;
+  return {
+    exec: funcWithoutDep(dependency),
+    with: funcWithoutDep,
+  };
 }
 
 export function mutation(type, func) {
-  const boundFunc = func.bind(null);
-  boundFunc.type = type;
-  return boundFunc;
+  return {
+    type,
+    exec: func,
+  };
 }
 
-export function mutationWith(dependency, type, funcWithoutDep) {
-  const func = funcWithoutDep(dependency);
-  func.with = funcWithoutDep;
-  func.type = type;
-  return func;
+export function mutationWith(dependency, type, func) {
+  return {
+    type,
+    exec: func(dependency),
+    with: func,
+  };
 }
 
 export function action(type, func) {
-  const boundFunc = func.bind(null);
-  boundFunc.type = type;
-  return boundFunc;
+  return {
+    type,
+    exec: func,
+  };
 }
 
-export function actionWith(dependency, type, funcWithoutDep) {
-  const func = funcWithoutDep(dependency);
-  func.with = funcWithoutDep;
-  func.type = type;
-  return func;
+export function actionWith(dependency, type, func) {
+  return {
+    type,
+    exec: func(dependency),
+    with: func,
+  };
 }

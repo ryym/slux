@@ -55,12 +55,12 @@ export default class Store {
   }
 
   query(getter, payload) {
-    return getter(this.getState(), this._getterContext, payload);
+    return getter.exec(this.getState(), this._getterContext, payload);
   }
 
   commit(mutation, payload) {
     this._handleMutationStart(mutation.type, payload);
-    const nextState = mutation(this.getState(), this._mutationContext, payload);
+    const nextState = mutation.exec(this.getState(), this._mutationContext, payload);
     this._handleMutationEnd(mutation.type, nextState);
     this._state = nextState;
     return nextState;
@@ -68,7 +68,7 @@ export default class Store {
 
   run(action, payload) {
     this._notifyActionRun({ type: action.type, payload });
-    const returnValue = action(this._actionContext, payload);
+    const returnValue = action.exec(this._actionContext, payload);
     return returnValue;
   }
 
