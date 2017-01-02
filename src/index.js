@@ -10,7 +10,10 @@ import {
   action,
   actionWith,
 } from './accessorCreators';
-import createDispatcher from './createDispatcher';
+import {
+  createDispatcher,
+  createCombinedDispatcher,
+} from './dispatcherCreators';
 
 module.exports = {
   createStore,
@@ -22,4 +25,5 @@ module.exports = {
   action,
   actionWith,
   createDispatcher,
+  createCombinedDispatcher,
 };
