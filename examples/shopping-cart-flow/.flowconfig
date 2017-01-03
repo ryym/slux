@@ -1,0 +1,12 @@
+[include]
+../../dist
+../../getters.js
+../../node_modules/react
+
+[libs]
+../../types/slux.decl.flow.js
+
+[options]
+
+# module.name_mapper='^slux$' -> '<PROJECT_ROOT>/../../'
+# module.name_mapper='^slux\/getters$' -> '<PROJECT_ROOT>/../../getters'
