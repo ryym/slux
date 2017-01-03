@@ -1,6 +1,0 @@
-[libs]
-slux.decl.flow.js
-
-[ignore]
-.*/ttest/.*
-
