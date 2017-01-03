@@ -3,16 +3,16 @@
 import { createConnector } from 'slux/react';
 import rootStore from './stores/root';
 import productsStore from './stores/products';
-import type { SealedRootStore } from './stores/root';
-import type { SealedProductsStore } from './stores/products';
+import type { RootStoreRef } from './stores/root';
+import type { ProductsStoreRef } from './stores/products';
 
 export interface Stores {
-  root: SealedRootStore;
-  products: SealedProductsStore;
+  root: RootStoreRef;
+  products: ProductsStoreRef;
 }
 
-export default createConnector((seal): Stores => ({
-  root: seal(rootStore),
-  products: seal(productsStore),
+export default createConnector((getRef): Stores => ({
+  root: getRef(rootStore),
+  products: getRef(productsStore),
 }));
 

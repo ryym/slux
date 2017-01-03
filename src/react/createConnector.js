@@ -1,12 +1,12 @@
 import connectComponent from './connectComponent';
-import SealedStore from '../SealedStore';
+import StoreRef from '../StoreRef';
 import { query } from '../CombinedStore';
 
 /**
  * This enables to access multiple stores inside of mapStateToProps.
  */
 export default function createConnector(defineStores) {
-  const stores = defineStores(store => new SealedStore(store));
+  const stores = defineStores(store => new StoreRef(store));
 
   return function connect(
     mapStateToProps = (query, stores, props) => props,

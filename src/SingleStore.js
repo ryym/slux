@@ -1,12 +1,12 @@
 import Store from './Store';
-import SealedStore from './SealedStore';
+import StoreRef from './StoreRef';
 
 const createAccessorContexts = store => {
   const { query, commit, run } = store;
 
   const stores = {};
   Object.defineProperty(stores, '_self', {
-    value: new SealedStore(store),
+    value: new StoreRef(store),
   });
 
   return {

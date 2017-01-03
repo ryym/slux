@@ -95,33 +95,33 @@ declare module 'slux' {
 
     export interface CombinedQuery {
         <S, G, R>(
-            store: SealedStore<S, G, any, any, any, any>,
+            store: StoreRef<S, G, any, any, any, any>,
             getter: Getter0<S, G, R>
         ): R;
         <S, G, T, R>(
-            store: SealedStore<S, G, any, any, any, any>,
+            store: StoreRef<S, G, any, any, any, any>,
             getter: Getter1<S, G, T, R>,
             arg: T
         ): R;
     }
     export interface CombinedCommit {
         <S, C>(
-            store: SealedStore<S, any, C, any, any, any>,
+            store: StoreRef<S, any, C, any, any, any>,
             mutation: Mutation0<S, C>
         ): S;
         <S, C, T>(
-            store: SealedStore<S, any, C, any, any, any>,
+            store: StoreRef<S, any, C, any, any, any>,
             mutation: Mutation1<S, C, T>,
             arg: T
         ): S;
     }
     export interface CombinedRun {
         <S, D, R>(
-            store: SealedStore<any, any, any, D, any, any>,
+            store: StoreRef<any, any, any, D, any, any>,
             action: Action0<D, R>
         ): R;
         <S, D, T, R>(
-            store: SealedStore<any, any, any, D, any, any>,
+            store: StoreRef<any, any, any, D, any, any>,
             action: Action1<D, T, R>,
             arg: T
         ): R;
@@ -129,18 +129,18 @@ declare module 'slux' {
 
     export type CombinedGetterContext<S, Stores> = {
         query: CombinedQuery,
-        stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
+        stores: { self: CombinedStoreRef<S, Stores, any> } & Stores
     };
     export type CombinedMutationContext<S, Stores> = {
         query: CombinedQuery,
         commit: CombinedCommit,
-        stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
+        stores: { self: CombinedStoreRef<S, Stores, any> } & Stores
     };
     export type CombinedActionContext<S, Stores> = {
         query: CombinedQuery,
         commit: CombinedCommit,
         run: CombinedRun,
-        stores: { self: CombinedSealedStore<S, Stores, any> } & Stores
+        stores: { self: CombinedStoreRef<S, Stores, any> } & Stores
     };
 
     export class CombinedStore<S, Stores, Snap> extends Store<
@@ -161,24 +161,24 @@ declare module 'slux' {
         ) => void): void;
     }
 
-    type SealedStores = {
-        [key: string]: SealedStore<any, any, any, any, any, any>
+    type StoreRefs = {
+        [key: string]: StoreRef<any, any, any, any, any, any>
     };
-    export function combineStores<S, Stores extends SealedStores, Snap>(
+    export function combineStores<S, Stores extends StoreRefs, Snap>(
         config: {
             name: string,
             getInitialState: () => S,
             takeSnapshot?: (state: S, stores: Stores) => Snap,
-            stores: (sub: Sealer) => Stores
+            stores: (getRef: GetRef) => Stores
         }
     ): CombinedStore<S, Stores, Snap>;
 
-    export class SealedStore<S, G, C, D, Stores, Snap> {
+    export class StoreRef<S, G, C, D, Stores, Snap> {
         constructor(store: Store<S, G, C, D, Stores, Snap>);
         takeSnapshot(): Snap;
     }
 
-    type SingleSealedStore<S, Snap> = SealedStore<
+    type SingleStoreRef<S, Snap> = StoreRef<
         S,
         GetterContext<S>,
         MutationContext<S>,
@@ -187,7 +187,7 @@ declare module 'slux' {
         Snap
     >;
 
-    type CombinedSealedStore<S, Stores, Snap> = SealedStore<
+    type CombinedStoreRef<S, Stores, Snap> = StoreRef<
         S,
         CombinedGetterContext<S, Stores>,
         CombinedMutationContext<S, Stores>,
@@ -196,9 +196,9 @@ declare module 'slux' {
         Snap
     >;
 
-    type Sealer = <S, G, C, D, Stores, Snap>(
+    type GetRef = <S, G, C, D, Stores, Snap>(
         store: Store<S, G, C, D, Stores, Snap>
-    ) => SealedStore<S, G, C, D, Stores, Snap>;
+    ) => StoreRef<S, G, C, D, Stores, Snap>;
 
 
     export function getter<F extends GetterFunc0<any, any, any>>(f: F): { exec: F };
@@ -323,7 +323,7 @@ declare module 'slux/getters' {
 }
 
 declare module 'slux/react' {
-    import { Query, Dispatch, Dispatcher, CombinedQuery, Sealer } from 'slux';
+    import { Query, Dispatch, Dispatcher, CombinedQuery, GetRef } from 'slux';
     import { Component, ComponentClass, StatelessComponent } from 'react';
 
     type ReactComponent<P> = ComponentClass<P> | StatelessComponent<P>;
@@ -347,5 +347,5 @@ declare module 'slux/react' {
         ): (component: ReactComponent<P1 & P2>) => ComponentClass<WP>;
     }
 
-    export function createConnector<Stores>(defineStores: (seal: Sealer) => Stores): CustomConnect<Stores>;
+    export function createConnector<Stores>(defineStores: (getRef: GetRef) => Stores): CustomConnect<Stores>;
 }

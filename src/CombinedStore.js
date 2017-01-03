@@ -1,29 +1,29 @@
 import Store from './Store';
-import SealedStore, {
-  _SEALED_STORE_ACCESS_KEY,
-} from './SealedStore';
+import StoreRef, {
+  _STORE_REF_ACCESS_KEY,
+} from './StoreRef';
 
-export const query = (sealedStore, getter, payload) => {
-  return sealedStore
-    .getStore(_SEALED_STORE_ACCESS_KEY)
+export const query = (storeRef, getter, payload) => {
+  return storeRef
+    .getStore(_STORE_REF_ACCESS_KEY)
     .query(getter, payload);
 };
 
-export const commit = (sealedStore, mutation, payload) => {
-  return sealedStore
-    .getStore(_SEALED_STORE_ACCESS_KEY)
+export const commit = (storeRef, mutation, payload) => {
+  return storeRef
+    .getStore(_STORE_REF_ACCESS_KEY)
     .commit(mutation, payload);
 };
 
-export const run = (sealedStore, action, payload) => {
-  return sealedStore
-    .getStore(_SEALED_STORE_ACCESS_KEY)
+export const run = (storeRef, action, payload) => {
+  return storeRef
+    .getStore(_STORE_REF_ACCESS_KEY)
     .run(action, payload);
 };
 
-const createAccessorContexts = (store, sealedStores) => {
-  const stores = Object.assign({}, sealedStores, {
-    self: new SealedStore(store),
+const createAccessorContexts = (store, storeRefs) => {
+  const stores = Object.assign({}, storeRefs, {
+    self: new StoreRef(store),
   });
   return {
     getter: { query, stores },
@@ -50,17 +50,17 @@ export default class CombinedStore extends Store {
   }
 
   takeSnapshot() {
-    return this._takeSnapshot(this.getState(), this._sealedStores);
+    return this._takeSnapshot(this.getState(), this._storeRefs);
   }
 
   withSubs(process) {
     const accessors = { query, commit, run };
-    process(this._sealedStores, accessors);
+    process(this._storeRefs, accessors);
   }
 
   _subscribeSubStoreChanges() {
-    Object.keys(this._sealedStores).forEach(name => {
-      const store = this._sealedStores[name].getStore(_SEALED_STORE_ACCESS_KEY);
+    Object.keys(this._storeRefs).forEach(name => {
+      const store = this._storeRefs[name].getStore(_STORE_REF_ACCESS_KEY);
       store.onMutation(this._handleSubStoreMutation);
       store.onAction(this._notifyActionRun);
     });

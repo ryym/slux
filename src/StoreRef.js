@@ -1,12 +1,12 @@
-export const _SEALED_STORE_ACCESS_KEY = '-SEALED_STORE_ACCESS_KEY-';
+export const _STORE_REF_ACCESS_KEY = '-STORE_REF_ACCESS_KEY-';
 
-export default class SealedStore {
+export default class StoreRef {
   constructor(store) {
     this._store = store;
   }
 
   getStore(accessKey) {
-    if (accessKey === _SEALED_STORE_ACCESS_KEY) {
+    if (accessKey === _STORE_REF_ACCESS_KEY) {
       return this._store;
     }
     throw new Error('getStore can be used only inside of Slux');

@@ -8,22 +8,22 @@ import type {
   CombinedGetter,
   CombinedMutation,
   CombinedAction,
-  CombinedSealedStore,
+  CombinedStoreRef,
 } from 'slux';
-import type { SealedCartStore } from '../cart';
-import type { SealedProductsStore } from '../products';
+import type { CartStoreRef } from '../cart';
+import type { ProductsStoreRef } from '../products';
 
 export type RootState = void;
 
 export type RootSubStores = {
-  cart: SealedCartStore,
-  products: SealedProductsStore
+  cart: CartStoreRef,
+  products: ProductsStoreRef
 };
 
 export type RootGetter<P, R> = CombinedGetter<RootState, RootSubStores, P, R>;
 export type RootMutation<P> = CombinedMutation<RootState, RootSubStores, P>;
 export type RootAction<P, R> = CombinedAction<RootState, RootSubStores, P, R>;
-export type SealedRootStore = CombinedSealedStore<RootState, RootSubStores, any>;
+export type RootStoreRef = CombinedStoreRef<RootState, RootSubStores, any>;
 
 const takeSnapshot = (_: RootState, { cart, products }: RootSubStores) => ({
   cart: cart.takeSnapshot(),
@@ -32,9 +32,9 @@ const takeSnapshot = (_: RootState, { cart, products }: RootSubStores) => ({
 
 export default combineStores({
   name: 'RootStore',
-  stores: (seal): RootSubStores => ({
-    cart: seal(cartStore),
-    products: seal(productsStore),
+  stores: (getRef): RootSubStores => ({
+    cart: getRef(cartStore),
+    products: getRef(productsStore),
   }),
   getInitialState: (): void => {},
   takeSnapshot,

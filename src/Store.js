@@ -1,12 +1,12 @@
 import { EventEmitter } from 'events';
-import SealedStore from './SealedStore';
+import StoreRef from './StoreRef';
 
 const events = {
   MUTATION: 'MUTATION',
   ACTION: 'ACTION',
 };
 
-const seal = store => new SealedStore(store);
+const getRef = store => new StoreRef(store);
 
 const bindContext = (context, methods) => {
   methods.forEach(name => {
@@ -39,9 +39,9 @@ export default class Store {
     this._name = name || 'Anonymous Store';
     this.getInitialState = getInitialState;
     this._takeSnapshot = takeSnapshot;
-    this._sealedStores = defineSubStores(seal);
+    this._storeRefs = defineSubStores(getRef);
 
-    const { getter, mutation, action } = createAccessorContexts(this, this._sealedStores);
+    const { getter, mutation, action } = createAccessorContexts(this, this._storeRefs);
     this._getterContext = getter;
     this._mutationContext = mutation;
     this._actionContext = action;

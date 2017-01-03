@@ -9,9 +9,9 @@ const takeSnapshot = (_, { cart, products }) => ({
 
 export default combineStores({
   name: 'RootStore',
-  stores: seal => ({
-    cart: seal(cartStore),
-    products: seal(productsStore),
+  stores: getRef => ({
+    cart: getRef(cartStore),
+    products: getRef(productsStore),
   }),
   getInitialState: () => {},
   takeSnapshot,

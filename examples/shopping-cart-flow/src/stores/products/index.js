@@ -4,7 +4,7 @@ import { createStore } from 'slux';
 
 import type {
   SingleGetter, SingleMutation, SingleAction,
-  SingleSealedStore,
+  SingleStoreRef,
 } from 'slux';
 import type { Product } from '../../types';
 
@@ -16,7 +16,7 @@ export type ProductsState = {
 export type ProductsGetter<P, R> = SingleGetter<ProductsState, P, R>;
 export type ProductsMutation<P> = SingleMutation<ProductsState, P>;
 export type ProductsAction<P, R> = SingleAction<ProductsState, P, R>;
-export type SealedProductsStore = SingleSealedStore<ProductsState, ProductsState>;
+export type ProductsStoreRef = SingleStoreRef<ProductsState, ProductsState>;
 
 const getInitialState = (): ProductsState => ({
   byId: {},

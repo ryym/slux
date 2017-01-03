@@ -1,7 +1,7 @@
 import {
     createStore,
     GetterContext, MutationContext, ActionContext,
-    SingleSealedStore
+    SingleStoreRef
 } from 'slux';
 
 export interface CartState {
@@ -12,7 +12,7 @@ export interface CartState {
 export type CartGcx = GetterContext<CartState>;
 export type CartMcx = MutationContext<CartState>;
 export type CartAcx = ActionContext<CartState>;
-export type SealedCartStore = SingleSealedStore<CartState, CartState>;
+export type CartStoreRef = SingleStoreRef<CartState, CartState>;
 
 const getInitialState = (): CartState => ({
     addedIds: [],

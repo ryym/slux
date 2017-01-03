@@ -3,7 +3,7 @@
 import { createStore } from 'slux';
 import type {
   SingleGetter, SingleMutation, SingleAction,
-  SingleSealedStore,
+  SingleStoreRef,
 } from 'slux';
 
 export type CartState = {
@@ -14,7 +14,7 @@ export type CartState = {
 export type CartGetter<P, R> = SingleGetter<CartState, P, R>
 export type CartMutation<P> = SingleMutation<CartState, P>
 export type CartAction<P, R> = SingleAction<CartState, P, R>
-export type SealedCartStore = SingleSealedStore<CartState, CartState>;
+export type CartStoreRef = SingleStoreRef<CartState, CartState>;
 
 const getInitialState = (): CartState => ({
   addedIds: [],

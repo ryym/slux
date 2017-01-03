@@ -1,7 +1,7 @@
 import {
     createStore, getter, mutation,
     GetterContext, MutationContext, ActionContext,
-    SingleSealedStore
+    SingleStoreRef
 } from 'slux';
 import { Product } from '../../types';
 
@@ -13,7 +13,7 @@ export interface ProductsState {
 export type ProductsGcx = GetterContext<ProductsState>;
 export type ProductsMcx = MutationContext<ProductsState>;
 export type ProductsAcx = ActionContext<ProductsState>;
-export type SealedProductsStore = SingleSealedStore<ProductsState, any>;
+export type ProductsStoreRef = SingleStoreRef<ProductsState, any>;
 
 const getInitialState = (): ProductsState => ({
     byId: {},
