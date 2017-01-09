@@ -1,42 +1,42 @@
-export function getter(func) {
+export const getter = func => {
   return {
     exec: func,
   };
-}
+};
 
-export function getterWith(dependency, funcWithoutDep) {
+export const getterWith = dependency => func => {
   return {
-    exec: funcWithoutDep(dependency),
-    with: funcWithoutDep,
+    exec: func(dependency),
+    with: func,
   };
-}
+};
 
-export function mutation(type, func) {
+export const mutation = (type, func) => {
   return {
     type,
     exec: func,
   };
-}
+};
 
-export function mutationWith(dependency, type, func) {
+export const mutationWith = dependency => (type, func) => {
   return {
     type,
     exec: func(dependency),
     with: func,
   };
-}
+};
 
-export function action(type, func) {
+export const action = (type, func) => {
   return {
     type,
     exec: func,
   };
-}
+};
 
-export function actionWith(dependency, type, func) {
+export const actionWith = dependency => (type, func) => {
   return {
     type,
     exec: func(dependency),
     with: func,
   };
-}
+};

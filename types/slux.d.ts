@@ -208,10 +208,20 @@ declare module 'slux' {
         dep: Dep,
         g: (dep: Dep) => F
     ): { exec: F, with: (dep: Dep) => F };
-    export function getterWith<Dep, F extends GetterFunc1<any, any, any, any>>(
-        dep: Dep,
-        g: (dep: Dep) => F
-    ): { exec: F, with: (dep: Dep) => F };
+
+    interface GetterWithDep<Dep> {
+        <F extends GetterFunc0<any, any, any>>(type: string, a: (dep: Dep) => F): {
+            type: string,
+            exec: F,
+            with: (dep: Dep) => F
+        }
+        <F extends GetterFunc1<any, any, any, any>>(type: string, a: (dep: Dep) => F): {
+            type: string,
+            exec: F,
+            with: (dep: Dep) => F
+        }
+    }
+    export function getterWith<Dep>(dep: Dep): GetterWithDep<Dep>
 
     export function mutation<F extends MutationFunc0<any, any>>(
         type: string,
@@ -222,16 +232,19 @@ declare module 'slux' {
         f: F
     ): { type: string, exec: F };
 
-    export function mutationWith<Dep, F extends MutationFunc0<any, any>>(
-        dep: Dep,
-        type: string,
-        m: (dep: Dep) => F
-    ): { type: string, exec: F, with: (dep: Dep) => F };
-    export function mutationWith<Dep, F extends MutationFunc1<any, any, any>>(
-        dep: Dep,
-        type: string,
-        m: (dep: Dep) => F
-    ): { type: string, exec: F, with: (dep: Dep) => F };
+    interface MutationWithDep<Dep> {
+        <F extends MutationFunc0<any, any>>(type: string, a: (dep: Dep) => F): {
+            type: string,
+            exec: F,
+            with: (dep: Dep) => F
+        }
+        <F extends MutationFunc1<any, any, any>>(type: string, a: (dep: Dep) => F): {
+            type: string,
+            exec: F,
+            with: (dep: Dep) => F
+        }
+    }
+    export function mutationWith<Dep>(dep: Dep): MutationWithDep<Dep>
 
     export function action<F extends ActionFunc0<any, any>>(
         type: string,
@@ -242,16 +255,19 @@ declare module 'slux' {
         a: F
     ): { type: string, exec: F };
 
-    export function actionWith<Dep, F extends ActionFunc0<any, any>>(
-        dep: Dep,
-        type: string,
-        a: (dep: Dep) => F
-    ): { type: string, exec: F, with: (dep: Dep) => F };
-    export function actionWith<Dep, F extends ActionFunc1<any, any, any>>(
-        dep: Dep,
-        type: string,
-        a: (dep: Dep) => F
-    ): { type: string, exec: F, with: (dep: Dep) => F };
+    interface ActionWithDep<Dep> {
+        <F extends ActionFunc0<any, any>>(type: string, a: (dep: Dep) => F): {
+            type: string,
+            exec: F,
+            with: (dep: Dep) => F
+        }
+        <F extends ActionFunc1<any, any, any>>(type: string, a: (dep: Dep) => F): {
+            type: string,
+            exec: F,
+            with: (dep: Dep) => F
+        }
+    }
+    export function actionWith<Dep>(dep: Dep): ActionWithDep<Dep>
 
 
     interface StateTracker<Snap, Methods> {

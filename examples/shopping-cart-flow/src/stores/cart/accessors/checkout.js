@@ -21,8 +21,7 @@ export const restore: CartMutation<CartState> = mutation(
     (state, _, cart) => cart
 );
 
-export const checkout: CartAction<CartProduct[], void> = actionWith(
-    shop,
+export const checkout: CartAction<CartProduct[], void> = actionWith(shop)(
     'Checkout',
     (shop: ShopAPI) => ({ query, commit }, products) => {
       const cart = query(getState);

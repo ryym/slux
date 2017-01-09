@@ -184,36 +184,37 @@ declare module 'slux' {
   declare type CombinedAction<S, Stores, P, R> = Action<CombinedActionContext<S, Stores>, P, R>
 
   declare function getter<G: GetterFunc<any, any, any, any>>(func: G): { exec: G }
-  declare function getterWith<Dep, G: GetterFunc<any, any, any, any>>(
-    dep: Dep,
+
+  declare function getterWith<Dep>(
+    dep: Dep
+  ): <G: GetterFunc<any, any, any, any>>(
+    type: string,
     func: (dep: Dep) => G
-  ): { exec: G, with: (dep: Dep) => G }
+  ) => { exec: G, with: (dep: Dep) => G }
 
   declare function mutation<M: MutationFunc<any, any, any>>(
     type: string,
     func: M
   ): { type: string, exec: M }
 
-  declare function mutationWith<Dep, M: MutationFunc<any, any, any>>(
-    dep: Dep,
+  declare function mutationWith<Dep>(
+    dep: Dep
+  ): <M: MutationFunc<any, any, any>>(
     type: string,
     func: (dep: Dep) => M
-  ): { type: string, exec: M, with: (dep: Dep) => M }
+  ) => { type: string, exec: M, with: (dep: Dep) => M }
 
   declare function action<A: ActionFunc<any, any, any>>(
     type: string,
     a: A
   ): { type: string, exec: A }
 
-  declare function actionWith<Dep, A: ActionFunc<any, any, any>>(
-    dep: Dep,
+  declare function actionWith<Dep>(
+    dep: Dep
+  ): <A: ActionFunc<any, any, any>>(
     type: string,
     func: (dep: Dep) => A
-  ): {
-    type: string,
-    exec: A,
-    with: (dep: Dep) => A
-  }
+  ) => { type: string, exec: A, with: (dep: Dep) => A }
 
 
   declare interface StateTracker<Snap, Methods> {
