@@ -1,20 +1,14 @@
 import connectComponent from './connectComponent';
-import StoreRef from '../StoreRef';
-import { query } from '../CombinedStore';
 
-/**
- * This enables to access multiple stores inside of mapStateToProps.
- */
-export default function createConnector(defineStores) {
-  const stores = defineStores(store => new StoreRef(store));
+const defaultPropsMapper = (tracker, props) => props;
 
+export default function createConnector(stateTracker) {
   return function connect(
-    mapStateToProps = (query, stores, props) => props,
-    mapDispatchToProps = dispatch => ({ dispatch })
+    mapToProps = defaultPropsMapper
   ) {
     return Component => connectComponent(Component, {
-      mapStateToProps: (store, props) => mapStateToProps(query, stores, props),
-      mapDispatchToProps,
+      stateTracker,
+      mapToProps,
     });
   };
 }

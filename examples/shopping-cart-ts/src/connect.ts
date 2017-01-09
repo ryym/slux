@@ -1,14 +1,6 @@
-import { createConnector } from 'slux/react';
-import rootStore, { RootStoreRef } from './stores/root';
-import productsStore, { ProductsStoreRef } from './stores/products';
+import { createConnector } from 'slux/react'
+import facade from './stores/facade'
 
-export interface Stores {
-    root: RootStoreRef;
-    products: ProductsStoreRef;
-}
+export type Methods = typeof facade.methods;
 
-export default createConnector((getRef): Stores => ({
-    root: getRef(rootStore),
-    products: getRef(productsStore)
-}));
-
+export default createConnector(facade)

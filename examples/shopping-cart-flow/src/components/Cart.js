@@ -4,7 +4,7 @@ import React from 'react';
 import Product from './Product';
 import { CartProduct } from '../types';
 
-interface CartProps {
+export interface CartProps {
   products: CartProduct[];
   total: number;
   checkout: (products: CartProduct[]) => void;

@@ -1,7 +1,5 @@
 import React, { PropTypes } from 'react';
 import ProductItem from './ProductItem';
-import { commands } from '../dispatcher';
-import { getVisibleProducts } from '../stores/products/accessors';
 import connect from '../connect';
 
 const ProductList = ({ title, products, addToCart }) => (
@@ -28,18 +26,12 @@ ProductList.propTypes = {
   addToCart: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (query, { products }, props) => ({
-  products: query(products, getVisibleProducts),
-  ...props,
+const mapToProps = (methods, props) => ({
+  products: methods.getVisibleProducts(),
+  addToCart: methods.addToCart,
+  title: props.title,
 });
 
-const mapDispatchToProps = dispatch => ({
-  addToCart: id => dispatch(commands.addToCart, id),
-});
-
-const ProductListContainer = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProductList);
+const ProductListContainer = connect(mapToProps)(ProductList);
 
 export default ProductListContainer;

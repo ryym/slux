@@ -1,5 +1,4 @@
 import { Component, createElement } from 'react';
-import sluxContextPropType from './utils/slux-context-prop-type';
 import shallowEqual from './utils/shallowEqual';
 
 // TODO: Optimization and configurability
@@ -12,21 +11,16 @@ import shallowEqual from './utils/shallowEqual';
  */
 export default function connectComponent(WrappedComponent, configs) {
   const {
-    mapStateToProps,
-    mapDispatchToProps,
+    stateTracker,
+    mapToProps,
   } = configs;
+  const methods = stateTracker.methods;
 
   class Connect extends Component {
     constructor(props, context) {
       super(props, context);
-      const { sluxContext } = context;
-      const dispatcher = sluxContext.dispatcher;
-
-      this.dispatch = dispatcher.dispatch;
-      this.store = dispatcher.getStore();
-      this.dispatchProps = mapDispatchToProps(this.dispatch, props);
       this.state = {
-        mappedProps: mapStateToProps(this.store, props),
+        mappedProps: mapToProps(methods, props),
       };
 
       this.handleStateChange = this.handleStateChange.bind(this);
@@ -34,7 +28,7 @@ export default function connectComponent(WrappedComponent, configs) {
 
     componentDidMount() {
       if (! this.unsubscribe) {
-        this.unsubscribe = this.store.onMutation(this.handleStateChange);
+        this.unsubscribe = stateTracker.onStateChange(this.handleStateChange);
       }
     }
 
@@ -45,27 +39,19 @@ export default function connectComponent(WrappedComponent, configs) {
     }
 
     handleStateChange() {
-      const nextState = mapStateToProps(this.store, this.props);
-      if (! shallowEqual(this.state.mappedProps, nextState)) {
-        this.setState({ mappedProps: nextState });
+      const mappedProps = mapToProps(methods, this.props);
+      if (! shallowEqual(this.state.mappedProps, mappedProps)) {
+        this.setState({ mappedProps });
       }
     }
 
     render() {
       const { mappedProps } = this.state;
-      const mergedProps = {
-        ...mappedProps,
-        ...this.dispatchProps,
-        ...this.props,
-      };
-      return createElement(WrappedComponent, mergedProps);
+      return createElement(WrappedComponent, mappedProps);
     }
   }
 
   Connect.displayName = `Connect(${WrappedComponent.displayName || WrappedComponent.name})`;
-  Connect.contextTypes = {
-    sluxContext: sluxContextPropType,
-  };
 
   return Connect;
 }

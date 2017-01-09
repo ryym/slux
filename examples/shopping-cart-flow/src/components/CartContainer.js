@@ -1,30 +1,17 @@
 // @flow
 
-import type { CustomQuery, ConnectedComponentClass } from 'slux/react';
+import type { ConnectedComponentClass } from 'slux/react';
 import connect from '../connect';
-import type { Stores } from '../connect';
+import type { Methods } from '../connect';
 import Cart from './Cart';
-import { commands } from '../dispatcher';
-import {
-    getCartProducts,
-    getTotal,
-} from '../stores/root/accessors';
+import type { CartProps } from './Cart';
 
-import type { Dispatch } from 'slux';
-import type { Product } from '../types';
-
-const mapStateToProps = (query: CustomQuery, { root }: Stores): {} => ({
-  products: query(root, getCartProducts),
-  total: query(root, getTotal),
+const mapToProps = (f: Methods): CartProps => ({
+  products: f.getCartProducts(),
+  total: f.getTotal(),
+  checkout: f.checkout,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch): {} => ({
-  checkout: (products: Product[]) => dispatch(commands.checkout, products),
-});
-
-const CartContainer: ConnectedComponentClass<{}> = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Cart);
+const CartContainer: ConnectedComponentClass<{}> = connect(mapToProps)(Cart);
 
 export default CartContainer;

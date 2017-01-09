@@ -1,8 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { connect } from 'slux/react';
-import { commands } from '../dispatcher';
-import { getSelectedReddit } from '../store/reddit';
-import { getPosts } from '../store/posts';
+import connect from '../connect';
 import Picker from '../components/Picker';
 import Posts from '../components/Posts';
 
@@ -14,13 +11,13 @@ class App extends Component {
   }
 
   handleChange(nextReddit) {
-    this.props.dispatch(commands.selectReddit, nextReddit);
+    this.props.selectReddit(nextReddit);
   }
 
   handleRefreshClick(event) {
     event.preventDefault();
-    const { dispatch, selectedReddit } = this.props;
-    dispatch(commands.fetchPosts, selectedReddit);
+    const { fetchPosts, selectedReddit } = this.props;
+    fetchPosts(selectedReddit);
   }
 
   render() {
@@ -66,23 +63,25 @@ App.propTypes = {
   posts: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   lastUpdated: PropTypes.number,
-  dispatch: PropTypes.func.isRequired,
+  selectReddit: PropTypes.func.isRequired,
+  fetchPosts: PropTypes.func.isRequired,
 };
 
-function mapStateToProps(query) {
-  const selectedReddit = query(getSelectedReddit);
+const mapToProps = methods => {
+  const selectedReddit = methods.getSelectedReddit();
   const {
     posts,
     isFetching,
     lastUpdated,
-  } = query(getPosts, selectedReddit);
-
+  } = methods.getPosts(selectedReddit);
   return {
     selectedReddit,
     posts,
     isFetching,
     lastUpdated,
+    selectReddit: methods.selectReddit,
+    fetchPosts: methods.fetchPosts,
   };
-}
+};
 
-export default connect(mapStateToProps)(App);
+export default connect(mapToProps)(App);

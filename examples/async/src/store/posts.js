@@ -1,5 +1,6 @@
 import { getter, mutation, action } from 'slux';
 import fetchRedditPosts from '../api/fetchRedditPosts';
+import { getSelectedReddit } from './reddit';
 
 export const getPosts = getter(
   (state, { query }, reddit) => {
@@ -50,5 +51,13 @@ export const fetchPosts = action(
         receivedAt: Date.now(),
       });
     });
+  }
+);
+
+export const initializePosts = action(
+  'Initialize Posts',
+  ({ query, run }) => {
+    const reddit = query(getSelectedReddit);
+    run(fetchPosts, reddit);
   }
 );

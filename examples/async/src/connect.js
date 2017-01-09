@@ -1,4 +1,4 @@
 import { createConnector } from 'slux/react';
-import facade from './stores/facade';
+import facade from './facade';
 
 export default createConnector(facade);
