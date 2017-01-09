@@ -1,8 +1,4 @@
 import { createConnector } from 'slux/react';
-import rootStore from './stores/root';
-import productsStore from './stores/products';
+import facade from './stores/facade';
 
-export default createConnector(getRef => ({
-  root: getRef(rootStore),
-  products: getRef(productsStore),
-}));
+export default createConnector(facade);
