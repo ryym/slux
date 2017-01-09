@@ -42,8 +42,7 @@ export const initialize: ProductsMutation<Product[]> = mutation(
   }
 );
 
-export const loadProducts: ProductsAction<void, void> = actionWith(
-  shop,
+export const loadProducts: ProductsAction<void, void> = actionWith(shop)(
   'Load Products',
   (shop: ShopAPI) => ({ commit }) => {
     shop.fetchProducts(products => {
