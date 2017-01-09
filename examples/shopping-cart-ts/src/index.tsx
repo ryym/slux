@@ -2,20 +2,16 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Provider } from 'slux/react';
 import App from './components/App';
-import store from './stores/root';
-import { dispatcher, commands } from './dispatcher';
+import facade from './stores/facade'
 
-store.onMutation(mutationData => {
-    console.log('CHANGED', mutationData.type, store.takeSnapshot());
+facade.onStateChange(mutationData => {
+    console.log('CHANGED', mutationData.type, facade.takeSnapshot());
 });
 
-dispatcher.dispatch(commands.loadProducts);
+facade.methods.loadProducts()
 
 ReactDOM.render(
-    <Provider dispatcher={dispatcher}>
-    <App />
-    </Provider>,
+    <App />,
     document.getElementById('root')
 );

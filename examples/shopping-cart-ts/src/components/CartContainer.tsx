@@ -1,27 +1,13 @@
-import { CustomQuery } from 'slux/react';
-import connect, { Stores } from '../connect';
-import Cart from './Cart';
-import { commands } from '../dispatcher';
-import {
-    getCartProducts,
-    getTotal
-} from '../stores/root/accessors';
-
-import { Dispatch } from 'slux';
+import connect, { Methods } from '../connect';
+import Cart, { CartProps } from './Cart';
 import { CartProduct } from '../types';
 
-const mapStateToProps = (query: CustomQuery, { root }: Stores): {} => ({
-    products: query(root, getCartProducts),
-    total: query(root, getTotal),
-});
+const mapToProps = (methods: Methods): CartProps => ({
+    products: methods.getCartProducts(),
+    total: methods.getTotal(),
+    checkout: methods.checkout
+})
 
-const mapDispatchToProps = (dispatch: Dispatch): {} => ({
-    checkout: (products: CartProduct[]) => dispatch(commands.checkout, products),
-});
-
-const CartContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Cart);
+const CartContainer = connect(mapToProps)(Cart);
 
 export default CartContainer;
