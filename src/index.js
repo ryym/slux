@@ -14,6 +14,10 @@ import {
   createDispatcher,
   createCombinedDispatcher,
 } from './dispatcherCreators';
+import {
+  createFacade,
+  createCombinedFacade,
+} from './storeFacadeCreators';
 
 module.exports = {
   createStore,
@@ -26,4 +30,6 @@ module.exports = {
   actionWith,
   createDispatcher,
   createCombinedDispatcher,
+  createFacade,
+  createCombinedFacade,
 };

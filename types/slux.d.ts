@@ -57,12 +57,12 @@ declare module 'slux' {
     export type ActionContext<S> = {
         query: SingleQuery<S>,
         commit: SingleCommit<S>,
-        run: SingleDispatch<S>
+        run: SingleRun<S>
     };
 
     type SingleQuery<S> = Query<S, GetterContext<S>>;
     type SingleCommit<S> = Commit<S, MutationContext<S>>;
-    type SingleDispatch<S> = Run<ActionContext<S>>;
+    type SingleRun<S> = Run<ActionContext<S>>;
 
     type MutationData = {
         type: string;
@@ -311,6 +311,75 @@ declare module 'slux' {
         dispatcher: Dispatcher,
         commands: CM
     };
+
+    interface StateTracker<Snap, Methods> {
+        methods: Methods;
+        onStateChange(handler: (data: MutationData, self: StateTracker<Snap, Methods>) => void): void;
+        takeSnapshot(): Snap;
+    }
+
+    interface FacadeQuery {
+        <S, GX, R>(getter: Getter0<S, GX, R>): () => R;
+        <S, GX, P, R>(getter: Getter1<S, GX, P, R>): (payload: P) => R;
+    }
+    interface FacadeCommit {
+        <S, CX>(muation: Mutation0<S, CX>): () => S;
+        <S, CX, P>(muation: Mutation1<S, CX, P>): (payload: P) => S;
+    }
+    interface FacadeRun {
+        <DX, R>(action: Action0<DX, R>): () => R;
+        <DX, P, R>(action: Action1<DX, P, R>): (payload: P) => R;
+    }
+
+    export function createFacade<Snap, Methods>(
+        store: Store<any, any, any, any, any, Snap>,
+        defineMethods: (appliers: {
+            query: FacadeQuery,
+            commit: FacadeCommit,
+            run: FacadeRun
+        }) => Methods
+    ): StateTracker<Snap, Methods>
+
+    interface CombinedFacadeQuery {
+        <S, G, R>(
+            store: StoreRef<S, G, any, any, any, any>,
+            getter: Getter0<S, G, R>
+        ): () => R;
+        <S, G, P, R>(
+            store: StoreRef<S, G, any, any, any, any>,
+            getter: Getter1<S, G, P, R>,
+        ): (payload: P) => R;
+    }
+    interface CombinedFacadeCommit {
+        <S, C>(
+            store: StoreRef<S, any, C, any, any, any>,
+            mutation: Mutation0<S, C>
+        ): () => S;
+        <S, C, P>(
+            store: StoreRef<S, any, C, any, any, any>,
+            mutation: Mutation1<S, C, P>,
+        ): (payload: P) => S;
+    }
+    interface CombinedFacadeRun {
+        <S, D, R>(
+            store: StoreRef<any, any, any, D, any, any>,
+            action: Action0<D, R>
+        ): () => R;
+        <S, D, P, R>(
+            store: StoreRef<any, any, any, D, any, any>,
+            action: Action1<D, P, R>,
+        ): (payload: P) => R;
+    }
+
+    export function createCombinedFacade<State, Stores, Snap, Methods>(
+        store: Store<State, any, any, any, Stores, Snap>,
+        defineMethods: (appliers: {
+            query: CombinedFacadeQuery,
+            commit: CombinedFacadeCommit,
+            run: CombinedFacadeRun,
+            stores: { self: CombinedStoreRef<State, Stores, any> } & Stores,
+        }) => Methods
+    ): StateTracker<Snap, Methods>
 }
 
 declare module 'slux/getters' {
@@ -323,7 +392,7 @@ declare module 'slux/getters' {
 }
 
 declare module 'slux/react' {
-    import { Query, Dispatch, Dispatcher, CombinedQuery, GetRef } from 'slux';
+    import { Query, Dispatch, Dispatcher, CombinedQuery, GetRef, StateTracker } from 'slux';
     import { Component, ComponentClass, StatelessComponent } from 'react';
 
     type ReactComponent<P> = ComponentClass<P> | StatelessComponent<P>;
@@ -338,14 +407,11 @@ declare module 'slux/react' {
     }
     export class Provider extends Component<ProviderProps, {}> {}
 
-    export type CustomQuery = CombinedQuery;
-
-    interface CustomConnect<Stores> {
-        <P1, P2, WP>(
-            mapStateToProps: (query: CustomQuery, stores: Stores, props: WP) => P1,
-            mapDispatchToProps?: (dispatch: Dispatch) => P2
-        ): (component: ReactComponent<P1 & P2>) => ComponentClass<WP>;
+    export interface Connect<Methods> {
+        <Props, WrapperProps>(
+            mapToProps: (methods: Methods, props: WrapperProps) => Props
+        ): (component: ReactComponent<Props>) => ComponentClass<WrapperProps>;
     }
 
-    export function createConnector<Stores>(defineStores: (getRef: GetRef) => Stores): CustomConnect<Stores>;
+    export function createConnector<Methods, ST extends StateTracker<any, Methods>>(stateTracker: ST): Connect<Methods>
 }

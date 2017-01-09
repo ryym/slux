@@ -41,12 +41,12 @@ declare module 'slux' {
   declare type ActionContext<S> = {
     query: SingleQuery<S>,
     commit: SingleCommit<S>,
-    run: SingleDispatch<S>
+    run: SingleRun<S>
   }
 
   declare type SingleQuery<S> = Query<S, GetterContext<S>>
   declare type SingleCommit<S> = Commit<S, MutationContext<S>>
-  declare type SingleDispatch<S> = Run<ActionContext<S>>
+  declare type SingleRun<S> = Run<ActionContext<S>>
 
   declare class StoreRef<S, G, C, D, Stores, Snap> {
     constructor(store: Store<S, G, C, D, Stores, Snap>): void;
@@ -264,6 +264,40 @@ declare module 'slux' {
     dispatcher: Dispatcher,
     commands: CM
   };
+
+  declare interface StateTracker<Snap, Methods> {
+    methods: Methods;
+    onStateChange(handler: (data: MutationData, self: StateTracker<Snap, Methods>) => void): void;
+    takeSnapshot(): Snap;
+  }
+
+  declare function createFacade<Snap, Methods>(
+    store: Store<any, any, any, any, any, Snap>,
+    defineMethods: ({
+      query: <S, GX, P, R>(getter: Getter<S, GX, P, R>) => P => R,
+      commit: <S, CX, P>(mutation: Mutation<S, CX, P>) => P => S,
+      run: <DX, P, R>(action: Action<DX, P, R>) => P => R,
+    }) => Methods
+  ): StateTracker<Snap, Methods>
+
+  declare function createCombinedFacade<State, Stores, Snap, Methods>(
+    store: Store<State, any, any, any, Stores, Snap>,
+    defineMethods: ({
+      query: <S, GX, P, R>(
+        store: StoreRef<S, GX, any, any, any, any>,
+        getter: Getter<S, GX, P, R>
+      ) => P => R,
+      commit: <S, CX, P>(
+        store: StoreRef<S, any, CX, any, any, any>,
+        mutation: Mutation<S, CX, P>
+      ) => P => S,
+      run: <DX, P, R>(
+        store: StoreRef<any, any, any, DX, any, any>,
+        action: Action<DX, P, R>
+      ) => P => R,
+      stores: { self: CombinedStoreRef<State, Stores, any> } & Stores,
+    }) => Methods
+  ): StateTracker<Snap, Methods>
 }
 
 declare module 'slux/getters' {
@@ -276,7 +310,11 @@ declare module 'slux/getters' {
 }
 
 declare module 'slux/react' {
-  import type { Query, Dispatch, Dispatcher, CombinedQuery, GetRef } from 'slux';
+  import type {
+    Query, Dispatch, Dispatcher,
+    CombinedQuery, GetRef,
+    StateTracker,
+  } from 'slux';
   import type { Component } from 'react';
 
   declare type ComponentClass<P> = Class<Component<any, P, any>>
@@ -294,14 +332,11 @@ declare module 'slux/react' {
   }
   declare class Provider extends React$Component<void, ProviderProps, void> {}
 
-  declare type CustomQuery = CombinedQuery;
-
-  declare interface CustomConnect<Stores> {
-    <WP>(
-      mapStateToProps: (query: CustomQuery, stores: Stores, props: WP) => {},
-      mapDispatchToProps?: (dispatch: Dispatch) => {}
-    ): (component: ReactComponent<any>) => ConnectedComponentClass<WP>;
+  declare interface Connect<Methods> {
+    <Props, WrapperProps>(
+      mapToProps: (methods: Methods, props: WrapperProps) => Props
+    ): (component: ReactComponent<Props>) => ConnectedComponentClass<WrapperProps>;
   }
 
-  declare function createConnector<Stores>(defineStores: (getRef: GetRef) => Stores): CustomConnect<Stores>;
+  declare function createConnector<Methods, ST: StateTracker<any, Methods>>(stateTracker: ST): Connect<Methods>
 }

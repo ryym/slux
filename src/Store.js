@@ -86,8 +86,10 @@ export default class Store {
     };
   }
 
-  // TODO: implement
-  onStateChange() {}
+  // TODO: implement (allow to skip some mutation)
+  onStateChange(handler) {
+    return this.onMutation(handler);
+  }
 
   getState() {
     return this._state;

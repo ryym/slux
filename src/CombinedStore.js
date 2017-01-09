@@ -47,6 +47,9 @@ export default class CombinedStore extends Store {
       defineSubStores: stores,
     });
     this._subscribeSubStoreChanges();
+    this._storeRefWithSelf = Object.assign({}, this._storeRefs, {
+      self: new StoreRef(this),
+    });
   }
 
   takeSnapshot() {
@@ -56,6 +59,10 @@ export default class CombinedStore extends Store {
   withSubs(process) {
     const accessors = { query, commit, run };
     process(this._storeRefs, accessors);
+  }
+
+  _getStoreRefs() {
+    return this._storeRefWithSelf;
   }
 
   _subscribeSubStoreChanges() {
