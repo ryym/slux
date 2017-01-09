@@ -1,18 +1,8 @@
 // @flow
 
 import { createConnector } from 'slux/react';
-import rootStore from './stores/root';
-import productsStore from './stores/products';
-import type { RootStoreRef } from './stores/root';
-import type { ProductsStoreRef } from './stores/products';
+import facade from './stores/facade';
 
-export interface Stores {
-  root: RootStoreRef;
-  products: ProductsStoreRef;
-}
+export type Methods = typeof facade.methods;
 
-export default createConnector((getRef): Stores => ({
-  root: getRef(rootStore),
-  products: getRef(productsStore),
-}));
-
+export default createConnector(facade);

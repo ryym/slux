@@ -5,7 +5,7 @@ import type { Product } from '../types';
 
 export interface ShopAPI {
     fetchProducts(callback: (ps: Product[]) => void): void;
-    buyProducts(products: Product[], callback: (err?: Error) => void): void;
+    buyProducts<P: Product>(products: P[], callback: (err?: Error) => void): void;
 }
 
 const shopAPI: ShopAPI = {

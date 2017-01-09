@@ -4,7 +4,7 @@ import { mutation, actionWith } from 'slux';
 import { getState, getInitialState } from 'slux/getters';
 import type { CartState, CartMutation, CartAction } from '../';
 import shop, { ShopAPI } from '../../../api/shop';
-import { Product } from '../../../types';
+import { CartProduct } from '../../../types';
 
 export const startCheckout: CartMutation<void> = mutation(
     'Start Checkout',
@@ -21,7 +21,7 @@ export const restore: CartMutation<CartState> = mutation(
     (state, _, cart) => cart
 );
 
-export const checkout: CartAction<Product[], void> = actionWith(
+export const checkout: CartAction<CartProduct[], void> = actionWith(
     shop,
     'Checkout',
     (shop: ShopAPI) => ({ query, commit }, products) => {
