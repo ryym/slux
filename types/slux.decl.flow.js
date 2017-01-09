@@ -216,55 +216,6 @@ declare module 'slux' {
   }
 
 
-  declare type Command<P> = {
-    type: string,
-    payload: P
-  }
-
-  declare type CommitMaker<S, CX> = <P>(
-    mutation: Mutation<S, CX, P>
-  ) => (payload: P) => Command<P>
-
-  declare type DispatchMaker<S, DX> = <P>(
-    action: Action<DX, P, any>
-  ) => (payload: P) => Command<P>
-
-  declare type Dispatch = <P>((payload: P) => Command<P>, payload: P) => void
-
-  declare class Dispatcher {
-    dispatch: Dispatch;
-  }
-
-  declare function createDispatcher<S, G, C, D, CM>(
-    store: Store<S, G, C, D, any, any>,
-    defineCommands: (
-      commit: CommitMaker<S, C>,
-      run: DispatchMaker<S, D>
-    ) => CM
-  ): {
-    dispatcher: Dispatcher,
-    commands: CM
-  }
-
-  declare interface CommitMakerWithStore {
-    <S, CX, T>(store: Store<S, any, CX, any, any, any>, mutation: Mutation<S, CX, T>): (t: T) => Command<T>;
-  }
-
-  declare interface DispatchMakerWithStore {
-    <S, DX, T>(store: Store<S, any, any, DX, any, any>, action: Action<DX, T, any>): (t: T) => Command<T>;
-  }
-
-  declare function createCombinedDispatcher<S, G, C, D, CM>(
-    store: Store<S, G, C, D, any, any>,
-    defineCommands: (
-      commit: CommitMakerWithStore,
-      run: DispatchMakerWithStore
-    ) => CM
-  ): {
-    dispatcher: Dispatcher,
-    commands: CM
-  };
-
   declare interface StateTracker<Snap, Methods> {
     methods: Methods;
     onStateChange(handler: (data: MutationData, self: StateTracker<Snap, Methods>) => void): void;
@@ -310,27 +261,13 @@ declare module 'slux/getters' {
 }
 
 declare module 'slux/react' {
-  import type {
-    Query, Dispatch, Dispatcher,
-    CombinedQuery, GetRef,
-    StateTracker,
-  } from 'slux';
+  import type { StateTracker } from 'slux';
   import type { Component } from 'react';
 
   declare type ComponentClass<P> = Class<Component<any, P, any>>
   declare type StatelessComponent<P> = (props: P) => ?React$Element<any>;
   declare type ReactComponent<P> = ComponentClass<P> | StatelessComponent<P>;
   declare type ConnectedComponentClass<P> = Class<React$Component<void, P, void>>
-
-  declare function connect<WP>(
-    mapStateToProps: (query: Query<any, any>, props: WP) => {},
-    mapDispatchToProps?: (dispatch: Dispatch) => {}
-  ): (component: ReactComponent<any>) => ConnectedComponentClass<WP>;
-
-  declare interface ProviderProps {
-    dispatcher: Dispatcher;
-  }
-  declare class Provider extends React$Component<void, ProviderProps, void> {}
 
   declare interface Connect<Methods> {
     <Props, WrapperProps>(

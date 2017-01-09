@@ -11,10 +11,6 @@ import {
   actionWith,
 } from './accessorCreators';
 import {
-  createDispatcher,
-  createCombinedDispatcher,
-} from './dispatcherCreators';
-import {
   createFacade,
   createCombinedFacade,
 } from './storeFacadeCreators';
@@ -28,8 +24,6 @@ module.exports = {
   mutationWith,
   action,
   actionWith,
-  createDispatcher,
-  createCombinedDispatcher,
   createFacade,
   createCombinedFacade,
 };
