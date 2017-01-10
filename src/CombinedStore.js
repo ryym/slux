@@ -70,6 +70,7 @@ export default class CombinedStore extends Store {
       const store = this._storeRefs[name].getStore(_STORE_REF_ACCESS_KEY);
       store.onMutation(this._handleSubStoreMutation);
       store.onAction(this._notifyActionRun);
+      store.onError(this._handleSubStoreError);
     });
   }
 }

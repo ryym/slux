@@ -5,6 +5,7 @@ import bindContext from './utils/bindContext';
 const events = {
   MUTATION: 'MUTATION',
   ACTION: 'ACTION',
+  ERROR: 'ERROR',
 };
 
 const getRef = store => new StoreRef(store);
@@ -28,6 +29,7 @@ export default class Store {
       'commit',
       'run',
       '_handleSubStoreMutation',
+      '_handleSubStoreError',
       '_notifyActionRun',
     ]);
 
@@ -55,10 +57,16 @@ export default class Store {
 
   commit(mutation, payload) {
     this._handleMutationStart(mutation.type, payload);
-    const nextState = mutation.exec(this.getState(), this._mutationContext, payload);
-    this._handleMutationEnd(mutation.type, nextState);
-    this._state = nextState;
-    return nextState;
+    const currentState = this.getState();
+    try {
+      const nextState = mutation.exec(currentState, this._mutationContext, payload);
+      this._handleMutationEnd(mutation.type, nextState);
+      return nextState;
+    }
+    catch (error) {
+      this._handleError(mutation.type, error);
+      return currentState;
+    }
   }
 
   run(action, payload) {
@@ -78,6 +86,13 @@ export default class Store {
     this._emitter.on(events.ACTION, handler);
     return () => {
       this._emitter.removeListener(events.ACTION, handler);
+    };
+  }
+
+  onError(handler) {
+    this._emitter.on(events.ERROR, handler);
+    return () => {
+      this._emitter.removeListener(events.ERROR, handler);
     };
   }
 
@@ -105,8 +120,8 @@ export default class Store {
   }
 
   _handleMutationEnd(type, nextState) {
+    this._state = nextState;
     if (this._currentMutation.type === type) {
-      this._state = nextState;
       this._notifyMutated(this._currentMutation);
       this._currentMutation = undefined;
     }
@@ -121,11 +136,41 @@ export default class Store {
     }
   }
 
+  _handleError(type, error) {
+    const mutationData = this._currentMutation;
+    this._currentMutation = undefined;
+    this._notifyOrThrowError(type, error, mutationData);
+  }
+
+  _handleSubStoreError({ type, error, mutationData: subMutationData }) {
+    let mutationData = this._currentMutation;
+    if (mutationData) {
+      mutationData.includes.push(subMutationData);
+    }
+    else {
+      mutationData = subMutationData;
+    }
+    this._notifyOrThrowError(type, error, mutationData);
+  }
+
   _notifyActionRun(actionData) {
     this._emitter.emit(events.ACTION, actionData);
   }
 
   _notifyMutated(mutationData) {
     this._emitter.emit(events.MUTATION, mutationData, this);
+  }
+
+  _notifyOrThrowError(type, error, mutationData) {
+    if (this._hasErrorHandlers()) {
+      this._emitter.emit(events.ERROR, { type, error, mutationData });
+    }
+    else {
+      throw error;
+    }
+  }
+
+  _hasErrorHandlers() {
+    return this._emitter.listenerCount(events.ERROR) > 0;
   }
 }
