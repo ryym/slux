@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import StoreRef from './StoreRef';
+import bindContext from './utils/bindContext';
 
 const events = {
   MUTATION: 'MUTATION',
@@ -7,12 +8,6 @@ const events = {
 };
 
 const getRef = store => new StoreRef(store);
-
-const bindContext = (context, methods) => {
-  methods.forEach(name => {
-    context[name] = context[name].bind(context);
-  });
-};
 
 /**
  * Store
