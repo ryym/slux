@@ -36,8 +36,7 @@ export const initialize = mutation(
   }
 );
 
-export const loadProducts = actionWith(
-  shop,
+export const loadProducts = actionWith(shop)(
   'Load Products',
   shop => ({ commit }) => {
     return shop.fetchProducts().then(products => {

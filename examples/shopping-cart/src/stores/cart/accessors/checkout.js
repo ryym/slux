@@ -17,8 +17,7 @@ export const restore = mutation(
   (state, _, cart) => cart
 );
 
-export const checkout = actionWith(
-  shop,
+export const checkout = actionWith(shop)(
   'Checkout',
   shop => ({ query, commit }, products) => {
     const cart = query(getState);
