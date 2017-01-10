@@ -76,24 +76,15 @@ export default class Store {
   }
 
   onMutation(handler) {
-    this._emitter.on(events.MUTATION, handler);
-    return () => {
-      this._emitter.removeListener(events.MUTATION, handler);
-    };
+    return this._registerHandler(events.MUTATION, handler);
   }
 
   onAction(handler) {
-    this._emitter.on(events.ACTION, handler);
-    return () => {
-      this._emitter.removeListener(events.ACTION, handler);
-    };
+    return this._registerHandler(events.ACTION, handler);
   }
 
   onError(handler) {
-    this._emitter.on(events.ERROR, handler);
-    return () => {
-      this._emitter.removeListener(events.ERROR, handler);
-    };
+    return this._registerHandler(events.ERROR, handler);
   }
 
   // TODO: implement (allow to skip some mutation)
@@ -107,6 +98,13 @@ export default class Store {
 
   takeSnapshot() {
     return this._takeSnapshot(this.getState());
+  }
+
+  _registerHandler(eventType, handler) {
+    this._emitter.on(eventType, handler);
+    return () => {
+      this._emitter.removeListener(eventType, handler);
+    };
   }
 
   _handleMutationStart(type, payload) {
