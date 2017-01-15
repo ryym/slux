@@ -3,6 +3,8 @@ import shallowEqual from './utils/shallowEqual';
 
 // TODO: Optimization and configurability
 
+// TODO: Storeには触らず、dispatcherにStoreをラップしたメソッドを持たせる
+
 /**
  * Create a wrapper component which subscribes a store's change.
  * The component will be updated when:
