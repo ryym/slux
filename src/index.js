@@ -1,10 +1,10 @@
 import {
   mutation,
   mutationWith,
-  action,
-  actionWith,
+  effect,
+  effectWith,
   createMutation,
-  createAction,
+  createEffect,
 } from './updaterCreators';
 import {
   createDispatcher,
@@ -17,10 +17,10 @@ import {
 module.exports = {
   mutation,
   mutationWith,
-  action,
-  actionWith,
+  effect,
+  effectWith,
   createMutation,
-  createAction,
+  createEffect,
   createDispatcher,
   createDispatcherWithCommands,
   createStore,

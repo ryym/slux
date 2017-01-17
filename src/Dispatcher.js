@@ -8,17 +8,17 @@ const createMutationHandler = (store, mutation) => ({
   handler: payload => store.commit(mutation, payload),
 });
 
-const createActionHandler = (store, action) => ({
-  type: `action:${action.type}`,
-  handler: payload => store.run(action, payload),
+const createEffectHandler = (store, effect) => ({
+  type: `effect:${effect.type}`,
+  handler: payload => store.run(effect, payload),
 });
 
 const createHandler = (store, updater) => {
   switch (updater.methodType) {
   case methodTypes.MUTATION:
     return createMutationHandler(store, updater);
-  case methodTypes.ACTION:
-    return createActionHandler(store, updater);
+  case methodTypes.EFFECT:
+    return createEffectHandler(store, updater);
   }
 };
 

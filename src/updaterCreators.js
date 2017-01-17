@@ -1,6 +1,6 @@
 export const methodTypes = {
   MUTATION: 'mutation',
-  ACTION: 'action',
+  EFFECT: 'effect',
 };
 
 const createMutationCreator = (selectState, mergeState) => {
@@ -43,28 +43,28 @@ export const mutationWith = createMutationCreator(
 );
 
 // TODO: enable to select and merge a state model.
-const createActionCreator = () => {
-  return dependency => (type, getAction) => {
+const createEffectCreator = () => {
+  return dependency => (type, getEffect) => {
     return {
-      methodType: methodTypes.ACTION,
+      methodType: methodTypes.EFFECT,
       type,
-      with: getAction,
-      exec: getAction(dependency),
+      with: getEffect,
+      exec: getEffect(dependency),
     };
   };
 };
 
-const createNoDepActionCreator = (selectState, mergeState) => {
-  const injectDep = createActionCreator(selectState, mergeState);
+const createNoDepEffectCreator = (selectState, mergeState) => {
+  const injectDep = createEffectCreator(selectState, mergeState);
   const create = injectDep();
-  return (type, action) => create(type, () => action);
+  return (type, effect) => create(type, () => effect);
 };
 
-export const createAction = createNoDepActionCreator;
+export const createEffect = createNoDepEffectCreator;
 
-export const createActionWithDep = createActionCreator;
+export const createEffectWithDep = createEffectCreator;
 
-export const action = createNoDepActionCreator();
+export const effect = createNoDepEffectCreator();
 
-export const actionWith = createActionCreator();
+export const effectWith = createEffectCreator();
 

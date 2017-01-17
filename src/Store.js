@@ -2,7 +2,7 @@ const { EventEmitter } = require('events');
 
 const events = {
   MUTATION: 'MUTATION',
-  ACTION: 'ACTION',
+  EFFECT: 'EFFECT',
   ERROR: 'ERROR',
 };
 
@@ -43,9 +43,9 @@ export default class Store {
     return this._state;
   }
 
-  run(action, payload) {
-    const { type, exec } = action;
-    this._notifyActionRun({ type, payload });
+  run(EFFECT, payload) {
+    const { type, exec } = EFFECT;
+    this._notifyEffectRun({ type, payload });
     return exec(this, this.getState(), payload);
   }
 
@@ -53,8 +53,8 @@ export default class Store {
     return this._registerHandler(events.MUTATION, handler);
   }
 
-  onAction(handler) {
-    return this._registerHandler(events.ACTION, handler);
+  onEffect(handler) {
+    return this._registerHandler(events.EFFECT, handler);
   }
 
   onError(handler) {
@@ -80,8 +80,8 @@ export default class Store {
     };
   }
 
-  _notifyActionRun(actionData) {
-    this._emitter.emit(events.ACTION, actionData);
+  _notifyEffectRun(effectData) {
+    this._emitter.emit(events.EFFECT, effectData);
   }
 
   _notifyMutated(type, payload) {
