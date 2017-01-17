@@ -7,8 +7,8 @@ import store from './store';
 
 // Logging
 if (process.env.NODE_ENV === 'development') {
-  store.onAction(actionData => {
-    console.log('ACTION', actionData.type);
+  store.onEffect(effectData => {
+    console.log('EFFECT', effectData.type);
   });
   store.onMutation((mutationData, store) => {
     console.log(mutationData.type, store.takeSnapshot());

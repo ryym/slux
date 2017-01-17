@@ -1,6 +1,6 @@
-import { mutation, action } from 'slux';
+import { mutation, effect } from 'slux';
 import { fetchPosts } from './posts';
-import { hasPosts } from './getters'
+import { hasPosts } from './getters';
 
 export const changeReddit = mutation(
   'Change Reddit',
@@ -10,7 +10,7 @@ export const changeReddit = mutation(
   }
 );
 
-export const selectReddit = action(
+export const selectReddit = effect(
   'Select Reddit',
   ({ commit, run }, state, reddit) => {
     const prevReddit = state.selectedReddit;
